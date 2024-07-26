@@ -1,0 +1,235 @@
+---
+- name: SIBR Server Setup
+  hosts: localhost
+  become: true
+  become_method: sudo
+
+  vars:
+    users:
+      dlareau: {admin: true}
+      iliana: {admin: true}
+      # Keep this user defined until we have non-admin users to exercise various
+      # non-admin branches.
+      mail: {shell: /usr/sbin/nologin}
+    packages:
+      # https://packages.ubuntu.com/noble/ubuntu-cloud-minimal, but less
+      - apparmor
+      - console-setup
+      - dbus
+      - dmsetup
+      - fdisk
+      - microcode-initrd
+      - openssh-server
+      - parted
+      - sudo
+      - systemd-resolved
+      - systemd-timesyncd
+      - unattended-upgrades
+      # you gotta boot somehow
+      - grub-efi-amd64
+      - grub-pc-bin
+      - initramfs-tools
+      - linux-image-generic
+      # hetzner installimage delivers network configuration to /etc/netplan
+      - netplan.io
+      # other important packages not in the above lists
+      - curl
+      - efibootmgr
+      - iproute2
+      - iputils-ping
+      - iputils-tracepath
+      - less
+      - locales
+      - logrotate
+      - man-db
+      - manpages
+      - nano
+      - netcat-openbsd
+      - psmisc
+      - rsync
+      - rsyslog
+      - strace
+      - tcpdump
+      - tzdata
+      - vim
+      - wget
+      # necessary to run the ansible playbook / scripts
+      - docker-compose
+      - docker.io
+      - git
+      - jq
+      - motd-news-config
+      - nftables
+      - pipx
+      # hardware management
+      - dmidecode
+      - ethtool
+      - hdparm
+      - mdadm
+      - nvme-cli
+      - pciutils
+      - smartmontools
+      - usbutils
+      # everything else
+      - bash-completion
+      - htop
+      - inetutils-telnet
+      - moreutils
+      - openssh-client
+      - screen
+      - shellcheck
+      - tmux
+      - zstd
+
+  handlers:
+    - name: dpkg-reconfigure locales
+      command: dpkg-reconfigure -f noninteractive locales
+    - name: reload docker
+      service: name=docker state=reloaded
+    - name: reload ssh
+      service: name=ssh state=reloaded
+
+  tasks:
+    # We describe all the packages we want the system to have in {{ packages }}.
+    # After installing all of the packages, we compare the list to `apt-mark
+    # showmanual` so that we can remove any unexpected packages. This helps to
+    # ensure that there is no implicit state depending on something that was
+    # installed by Hetzner that no longer is present.
+    #
+    # First, ensure that we generate a fact with the output of `apt-mark
+    # showmanual`.
+    - name: Create /etc/ansible/facts.d
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+    - name: Install custom `apt-mark showmanual` fact
+      template:
+        src: etc/manualpackages.fact.sh
+        dest: /etc/ansible/facts.d/apt_manualpackages.fact
+        mode: '0755'
+      register: apt_manualpackages_fact
+    # Add our apt.conf.
+    - name: Install /etc/apt/apt.conf.d/99sibr
+      template:
+        src: etc/apt.conf
+        dest: /etc/apt/apt.conf.d/99sibr
+    # Install all the packages.
+    - name: Install required packages
+      apt:
+        pkg: "{{ packages }}"
+        update_cache: yes
+        cache_valid_time: 86400
+      register: apt_install
+    # Run `apt-mark manual` on everything in {{ packages }} that is not present
+    # in {{ ansible_local['apt_manualpackages'] }}.
+    - name: Run `apt-mark manual` on expected packages
+      command:
+        argv:
+          - apt-mark
+          - manual
+          - "{{ item }}"
+      loop: >-
+        {{ packages | difference(ansible_local['apt_manualpackages']) | sort }}
+      register: apt_mark_manual
+    - name: Re-read local facts
+      setup:
+        filter: ansible_local
+      when: |
+        (apt_manualpackages_fact is changed) or
+        (apt_install is changed) or
+        (apt_mark_manual is changed)
+    # Run `apt-mark auto` on everything in {{ ansible_local['apt_manualpackages'] }}
+    # that is not present in {{ packages }}.
+    - name: Run `apt-mark auto` on unexpected packages
+      command:
+        argv:
+          - apt-mark
+          - auto
+          - "{{ item }}"
+      loop: >-
+        {{ ansible_local['apt_manualpackages'] | difference(packages) | sort }}
+    # Dry-run `apt-get autoremove`, prompt if it would change, then actually do
+    # the thing.
+    - name: Check if autoremove would remove anything
+      apt:
+        autoremove: true
+      check_mode: true
+      diff: true
+      register: apt_autoremove_dryrun
+    - name: Prompt to allow autoremove
+      pause:
+        prompt: Do you want to run `apt-get autoremove` (dry-run above)? [yes/no]
+      when: (not ansible_check_mode) and (apt_autoremove_dryrun is changed)
+      register: autoremove_pause
+    - name: apt-get autoremove
+      apt:
+        autoremove: true
+      when: |
+        (autoremove_pause is not skipped) and
+        (autoremove_pause.user_input is truthy(convert_bool=true))
+
+    # System configuration.
+    # - name: Set timezone to UTC
+    #   community.general.timezone:
+    #     name: UTC
+    #     hwclock: UTC
+    - name: Generate locales
+      debconf:
+        name: locales
+        question: locales/locales_to_be_generated
+        value: en_US.UTF-8 UTF-8
+        vtype: multiselect
+      notify: dpkg-reconfigure locales
+    - name: Set default locale
+      debconf:
+        name: locales
+        question: locales/default_environment_locale
+        value: en_US.UTF-8
+        vtype: select
+      notify: dpkg-reconfigure locales
+    - name: Deploy /etc/ssh/sshd_config
+      template:
+        src: etc/sshd_config
+        dest: /etc/ssh/sshd_config
+        validate: 'sshd -tf %s'
+      notify:
+        - reload ssh
+    - name: Deploy /etc/sudoers
+      template:
+        src: etc/sudoers
+        dest: /etc/sudoers
+        validate: 'visudo -cf %s'
+    - name: Deploy /etc/docker/daemon.json
+      copy:
+        src: etc/docker-daemon.json
+        dest: /etc/docker/daemon.json
+      notify:
+        - reload docker
+    - name: Disable MOTD news
+      lineinfile:
+        path: /etc/default/motd-news
+        regexp: '^ENABLED='
+        line: ENABLED=0
+    - name: Disable resume support in initramfs
+      lineinfile:
+        path: /etc/initramfs-tools/conf.d/resume
+        regexp: '^RESUME='
+        line: RESUME=none
+
+    # Users and groups.
+    - name: Create users
+      user:
+        name: "{{ item }}"
+        groups: "{{ users[item].admin | default | ternary(admin_groups, []) }}"
+        append: true
+        shell: "{{ users[item].shell | default('/bin/bash') }}"
+      loop: "{{ users.keys() }}"
+      vars:
+        admin_groups:
+          - docker
+          - sudo
+          - systemd-journal
+    - name: Ensure /root/.ssh/authorized_keys is absent
+      file:
+        path: /root/.ssh/authorized_keys
+        state: absent
