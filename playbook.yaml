@@ -168,11 +168,35 @@
         (autoremove_pause is not skipped) and
         (autoremove_pause.user_input is truthy(convert_bool=true))
 
+    # Install Ansible globally with pipx.
+    - name: pipx install ansible
+      community.general.pipx:
+        name: ansible
+        source: ansible==10.2.0
+        executable: pipx
+      environment:
+        PIPX_HOME: /opt/pipx
+        PIPX_BIN_DIR: /usr/local/bin
+        PIPX_MAN_DIR: /usr/local/share/man
+    - name: pipx inject ansible ansible-core
+      community.general.pipx:
+        name: ansible
+        source: ansible==10.2.0
+        state: inject
+        inject_packages:
+          - ansible-core==2.17.2
+        install_apps: true
+        executable: pipx
+      environment:
+        PIPX_HOME: /opt/pipx
+        PIPX_BIN_DIR: /usr/local/bin
+        PIPX_MAN_DIR: /usr/local/share/man
+
     # System configuration.
-    # - name: Set timezone to UTC
-    #   community.general.timezone:
-    #     name: UTC
-    #     hwclock: UTC
+    - name: Set timezone to UTC
+      community.general.timezone:
+        name: UTC
+        hwclock: UTC
     - name: Generate locales
       debconf:
         name: locales
