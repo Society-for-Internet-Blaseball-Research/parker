@@ -120,6 +120,10 @@
         update_cache: yes
         cache_valid_time: 86400
       register: apt_install
+    - name: Re-read local facts
+      setup:
+        filter: ansible_local
+      when: (apt_manualpackages_fact is changed) or (apt_install is changed)
     # Run `apt-mark manual` on everything in {{ packages }} that is not present
     # in {{ ansible_local['apt_manualpackages'] }}.
     - name: Run `apt-mark manual` on expected packages
@@ -130,14 +134,6 @@
           - "{{ item }}"
       loop: >-
         {{ packages | difference(ansible_local['apt_manualpackages']) | sort }}
-      register: apt_mark_manual
-    - name: Re-read local facts
-      setup:
-        filter: ansible_local
-      when: |
-        (apt_manualpackages_fact is changed) or
-        (apt_install is changed) or
-        (apt_mark_manual is changed)
     # Run `apt-mark auto` on everything in {{ ansible_local['apt_manualpackages'] }}
     # that is not present in {{ packages }}.
     - name: Run `apt-mark auto` on unexpected packages
@@ -236,7 +232,7 @@
         line: ENABLED=0
     - name: Disable resume support in initramfs
       lineinfile:
-        path: /etc/initramfs-tools/conf.d/resume
+        path: /etc/initramfs-tools/initramfs.conf
         regexp: '^RESUME='
         line: RESUME=none
 
