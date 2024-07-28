@@ -91,6 +91,11 @@
       service: name=ssh state=reloaded
 
   tasks:
+    - name: Set hostname
+      hostname:
+        name: sibr-03-hetzner
+        use: systemd
+
     # We describe all the packages we want the system to have in {{ packages }}.
     # After installing all of the packages, we compare the list to `apt-mark
     # showmanual` so that we can remove any unexpected packages. This helps to
