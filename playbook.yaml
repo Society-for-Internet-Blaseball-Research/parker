@@ -73,6 +73,7 @@
       - usbutils
       # everything else
       - bash-completion
+      - bind9-dnsutils
       - htop
       - inetutils-telnet
       - moreutils
@@ -119,14 +120,17 @@
       template:
         src: etc/apt.conf
         dest: /etc/apt/apt.conf.d/99sibr
-    - name: Install /etc/apt/sources.list.d/docker.sources
-      template:
-        src: etc/docker.sources
-        dest: /etc/apt/sources.list.d/docker.sources
     - name: Ensure /etc/apt/sources.list.d/hetzner-mirror.sources is absent
       file:
         path: /etc/apt/sources.list.d/hetzner-mirror.sources
         state: absent
+    - name: Install /etc/apt/sources.list.d/*.sources
+      template:
+        src: etc/{{ item }}
+        dest: /etc/apt/sources.list.d/{{ item }}
+      loop:
+        - ubuntu.sources
+        - docker.sources
     # Install all the packages.
     - name: Install required packages
       apt:
