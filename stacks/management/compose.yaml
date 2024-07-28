@@ -37,6 +37,7 @@ services:
     volumes:
       - /srv/docker/management/traefik_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    mem_limit: 256m
 
   whoami:
     restart: unless-stopped
@@ -46,6 +47,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.whoami.rule: Host(`whoami.sibr-03-hetzner.sibr.dev`)
+    mem_limit: 16m
 
 networks:
   proxy:
