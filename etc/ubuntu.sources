@@ -3,13 +3,13 @@
 #
 
 Types: deb
-URIs: https://mirror.hetzner.com/ubuntu/packages/ http://archive.ubuntu.com/ubuntu/
-Suites: noble noble-updates noble-backports
+URIs: https://mirror.hetzner.com/ubuntu/packages http://archive.ubuntu.com/ubuntu
+Suites: {{ ansible_distribution_release }} {{ ansible_distribution_release }}-updates {{ ansible_distribution_release }}-backports
 Components: main universe restricted multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 Types: deb
-URIs: http://security.ubuntu.com/ubuntu/
-Suites: noble-security
+URIs: http://security.ubuntu.com/ubuntu
+Suites: {{ ansible_distribution_release }}-security
 Components: main universe restricted multiverse
 Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
