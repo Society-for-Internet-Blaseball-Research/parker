@@ -23,4 +23,5 @@ services:
       traefik.http.routers.whoami.tls.certresolver: prod
 
 networks:
-  proxy: {}
+  proxy:
+    name: proxy

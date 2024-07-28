@@ -28,6 +28,9 @@ certificatesResolvers:
       storage: /data/acme.json
       tlsChallenge: {}
 
+log:
+  level: WARN
+
 accessLog:
   filePath: "/data/access.log"
   format: json
