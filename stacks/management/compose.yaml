@@ -1,26 +1,51 @@
+name: management
+
 services:
   traefik:
-    image: traefik:v3.1
     restart: unless-stopped
+    image: traefik:v3.1
+    command:
+      - --accessLog.filePath=/data/access.log
+      - --accessLog.format=json
+      - --api.dashboard=true
+      - --certificatesResolvers.prod.acme.email=certs@sibr.dev
+      - --certificatesResolvers.prod.acme.storage=/data/acme.json
+      - --certificatesResolvers.prod.acme.tlsChallenge=true
+      - --entryPoints.http.address=:80
+      - --entrypoints.http.http.redirections.entryPoint.scheme=https
+      - --entrypoints.http.http.redirections.entryPoint.to=https
+      - --entrypoints.https.address=:443
+      - --entrypoints.https.http.tls=true
+      - --entrypoints.https.http.middlewares=compression@docker,globalHeaders@docker
+      - --entrypoints.https.http.tls.certResolver=prod
+      - --log.level=INFO
+      - --metrics.prometheus.manualRouting=true
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=proxy
+    networks:
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.compression.compress: true
+      traefik.http.middlewares.compression.compress.excludedContentTypes: text/event-stream
+      traefik.http.middlewares.globalHeaders.headers.customResponseHeaders.Permissions-Policy: interest-cohort=()
+      traefik.http.routers.traefik-metrics.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`) && PathPrefix(`/metrics`)
+      traefik.http.routers.traefik-metrics.service: prometheus@internal
     ports:
       - 80:80
       - 443:443
-    networks:
-      - proxy
     volumes:
-      - /srv/docker/management/traefik_conf:/etc/traefik:ro
       - /srv/docker/management/traefik_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   whoami:
+    restart: unless-stopped
     image: traefik/whoami
     networks:
       - proxy
     labels:
       traefik.enable: true
       traefik.http.routers.whoami.rule: Host(`whoami.sibr-03-hetzner.sibr.dev`)
-      traefik.http.routers.whoami.tls: true
-      traefik.http.routers.whoami.tls.certresolver: prod
 
 networks:
   proxy:

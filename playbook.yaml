@@ -89,8 +89,6 @@
       service: name=docker state=reloaded
     - name: reload ssh
       service: name=ssh state=reloaded
-    - name: restart traefik
-      command: docker restart management-traefik-1
 
   tasks:
     # We describe all the packages we want the system to have in {{ packages }}.
@@ -120,6 +118,10 @@
       template:
         src: etc/docker.sources
         dest: /etc/apt/sources.list.d/docker.sources
+    - name: Ensure /etc/apt/sources.list.d/hetzner-mirror.sources is absent
+      file:
+        path: /etc/apt/sources.list.d/hetzner-mirror.sources
+        state: absent
     # Install all the packages.
     - name: Install required packages
       apt:
@@ -268,14 +270,7 @@
         path: "{{ item }}"
         state: directory
       loop:
-        - /srv/docker/management/traefik_conf
         - /srv/docker/management/traefik_data
-    - name: Copy traefik.yaml
-      template:
-        src: stacks/management/traefik.yaml
-        dest: /srv/docker/management/traefik_conf/traefik.yaml
-      notify:
-        - reload traefik
     - name: Manage Compose stacks
       community.docker.docker_compose_v2:
         project_src: "{{ item }}"
