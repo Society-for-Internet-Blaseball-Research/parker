@@ -32,6 +32,10 @@
       - linux-image-generic
       # hetzner installimage delivers network configuration to /etc/netplan
       - netplan.io
+      # docker docker docker
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose-plugin
       # other important packages not in the above lists
       - curl
       - efibootmgr
@@ -54,8 +58,6 @@
       - vim
       - wget
       # necessary to run the ansible playbook / scripts
-      - docker-compose-v2
-      - docker.io
       - git
       - jq
       - motd-news-config
@@ -87,8 +89,8 @@
       service: name=docker state=reloaded
     - name: reload ssh
       service: name=ssh state=reloaded
-    - name: reload traefik
-      command: docker exec management-traefik-1 kill -HUP 1
+    - name: restart traefik
+      command: docker restart management-traefik-1
 
   tasks:
     # We describe all the packages we want the system to have in {{ packages }}.
@@ -109,11 +111,15 @@
         dest: /etc/ansible/facts.d/apt_manualpackages.fact
         mode: '0755'
       register: apt_manualpackages_fact
-    # Add our apt.conf.
+    # Add our apt configuration.
     - name: Install /etc/apt/apt.conf.d/99sibr
       template:
         src: etc/apt.conf
         dest: /etc/apt/apt.conf.d/99sibr
+    - name: Install /etc/apt/sources.list.d/docker.sources
+      template:
+        src: etc/docker.sources
+        dest: /etc/apt/sources.list.d/docker.sources
     # Install all the packages.
     - name: Install required packages
       apt:
@@ -224,6 +230,7 @@
       copy:
         src: etc/docker-daemon.json
         dest: /etc/docker/daemon.json
+        validate: 'dockerd --validate --config-file=%s'
       notify:
         - reload docker
     - name: Disable MOTD news
