@@ -1,0 +1,33 @@
+#
+# {{ ansible_managed }}
+#
+
+api:
+  dashboard: true
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: proxy
+
+certificatesResolvers:
+  prod:
+    acme:
+      email: certs@sibr.dev
+      storage: /data/acme.json
+      tlsChallenge: {}
+
+accessLog:
+  filePath: "/data/access.log"
+  format: json

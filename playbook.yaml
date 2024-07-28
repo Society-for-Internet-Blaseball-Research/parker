@@ -54,12 +54,11 @@
       - vim
       - wget
       # necessary to run the ansible playbook / scripts
-      - docker-compose
+      - docker-compose-v2
       - docker.io
       - git
       - jq
       - motd-news-config
-      - nftables
       - pipx
       # hardware management
       - dmidecode
@@ -88,6 +87,8 @@
       service: name=docker state=reloaded
     - name: reload ssh
       service: name=ssh state=reloaded
+    - name: reload traefik
+      command: docker exec management-traefik-1 kill -HUP 1
 
   tasks:
     # We describe all the packages we want the system to have in {{ packages }}.
@@ -253,3 +254,24 @@
       file:
         path: /root/.ssh/authorized_keys
         state: absent
+
+    # Compose stacks.
+    - name: Create Compose stack directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /srv/docker/management/traefik_conf
+        - /srv/docker/management/traefik_data
+    - name: Copy traefik.yaml
+      template:
+        src: stacks/management/traefik.yaml
+        dest: /srv/docker/management/traefik_conf/traefik.yaml
+      notify:
+        - reload traefik
+    - name: Manage Compose stacks
+      community.docker.docker_compose_v2:
+        project_src: "{{ item }}"
+        remove_orphans: true
+      loop:
+        - stacks/management
