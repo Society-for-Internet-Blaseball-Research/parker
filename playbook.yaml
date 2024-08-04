@@ -86,16 +86,66 @@
   handlers:
     - name: dpkg-reconfigure locales
       command: dpkg-reconfigure -f noninteractive locales
-    - name: reload docker
-      service: name=docker state=reloaded
     - name: reload ssh
       service: name=ssh state=reloaded
 
   tasks:
+    # Early system configuration.
     - name: Set hostname
       hostname:
         name: sibr-03-hetzner
         use: systemd
+    - name: Set timezone to UTC
+      community.general.timezone:
+        name: UTC
+        hwclock: UTC
+    - name: Generate locales
+      debconf:
+        name: locales
+        question: locales/locales_to_be_generated
+        value: en_US.UTF-8 UTF-8
+        vtype: multiselect
+      notify: dpkg-reconfigure locales
+    - name: Set default locale
+      debconf:
+        name: locales
+        question: locales/default_environment_locale
+        value: en_US.UTF-8
+        vtype: select
+      notify: dpkg-reconfigure locales
+    - name: Use /run/systemd/resolve/resolv.conf as /etc/resolv.conf
+      file:
+        src: /run/systemd/resolve/resolv.conf
+        dest: /etc/resolv.conf
+        state: link
+    - name: Create /etc/systemd/resolved.conf.d
+      file:
+        path: /etc/systemd/resolved.conf.d
+        state: directory
+    - name: Deploy /etc/systemd/resolved.conf.d/sibr.conf
+      template:
+        src: etc/resolved.conf
+        dest: /etc/systemd/resolved.conf.d/sibr.conf
+      register: resolved_conf
+    - name: Restart systemd-resolved.service
+      service: name=systemd-resolved state=restarted
+      when: resolved_conf is changed
+    - name: Deploy /etc/ssh/sshd_config
+      template:
+        src: etc/sshd_config
+        dest: /etc/ssh/sshd_config
+        validate: 'sshd -tf %s'
+      notify: reload ssh
+    - name: Deploy /etc/sudoers
+      template:
+        src: etc/sudoers
+        dest: /etc/sudoers
+        validate: 'visudo -cf %s'
+    - name: Disable resume support in initramfs
+      lineinfile:
+        path: /etc/initramfs-tools/initramfs.conf
+        regexp: '^RESUME='
+        line: RESUME=none
 
     # We describe all the packages we want the system to have in {{ packages }}.
     # After installing all of the packages, we compare the list to `apt-mark
@@ -206,54 +256,21 @@
         PIPX_BIN_DIR: /usr/local/bin
         PIPX_MAN_DIR: /usr/local/share/man
 
-    # System configuration.
-    - name: Set timezone to UTC
-      community.general.timezone:
-        name: UTC
-        hwclock: UTC
-    - name: Generate locales
-      debconf:
-        name: locales
-        question: locales/locales_to_be_generated
-        value: en_US.UTF-8 UTF-8
-        vtype: multiselect
-      notify: dpkg-reconfigure locales
-    - name: Set default locale
-      debconf:
-        name: locales
-        question: locales/default_environment_locale
-        value: en_US.UTF-8
-        vtype: select
-      notify: dpkg-reconfigure locales
-    - name: Deploy /etc/ssh/sshd_config
-      template:
-        src: etc/sshd_config
-        dest: /etc/ssh/sshd_config
-        validate: 'sshd -tf %s'
-      notify:
-        - reload ssh
-    - name: Deploy /etc/sudoers
-      template:
-        src: etc/sudoers
-        dest: /etc/sudoers
-        validate: 'visudo -cf %s'
+    # Post-install system configuration.
     - name: Deploy /etc/docker/daemon.json
       copy:
         src: etc/docker-daemon.json
         dest: /etc/docker/daemon.json
         validate: 'dockerd --validate --config-file=%s'
-      notify:
-        - reload docker
+      register: docker_config
+    - name: Reload Docker
+      service: name=docker state=reloaded
+      when: docker_config is changed
     - name: Disable MOTD news
       lineinfile:
         path: /etc/default/motd-news
         regexp: '^ENABLED='
         line: ENABLED=0
-    - name: Disable resume support in initramfs
-      lineinfile:
-        path: /etc/initramfs-tools/initramfs.conf
-        regexp: '^RESUME='
-        line: RESUME=none
 
     # Users and groups.
     - name: Create users

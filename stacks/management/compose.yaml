@@ -8,21 +8,29 @@ services:
       - --accessLog.filePath=/data/access.log
       - --accessLog.format=json
       - --api.dashboard=true
-      - --certificatesResolvers.prod.acme.email=certs@sibr.dev
-      - --certificatesResolvers.prod.acme.storage=/data/acme.json
-      - --certificatesResolvers.prod.acme.tlsChallenge=true
+      - --certificatesResolvers.acme-dns.acme.dnsChallenge=true
+      - --certificatesResolvers.acme-dns.acme.dnsChallenge.disablePropagationCheck=true
+      - --certificatesResolvers.acme-dns.acme.dnsChallenge.provider=httpreq
+      - --certificatesResolvers.acme-dns.acme.email=certs@sibr.dev
+      - --certificatesResolvers.acme-dns.acme.storage=/data/acme-dns.json
       - --entryPoints.http.address=:80
       - --entrypoints.http.http.redirections.entryPoint.scheme=https
       - --entrypoints.http.http.redirections.entryPoint.to=https
       - --entrypoints.https.address=:443
-      - --entrypoints.https.http.tls=true
       - --entrypoints.https.http.middlewares=compression@docker,globalHeaders@docker
-      - --entrypoints.https.http.tls.certResolver=prod
+      - --entrypoints.https.http.tls=true
+      - --entrypoints.https.http.tls.certResolver=acme-dns
+      - --entrypoints.https.http.tls.domains[0].main=*.sibr.dev
+      - --entrypoints.https.http.tls.domains[0].sans=sibr.dev
+      - --entrypoints.https.http.tls.domains[1].main=*.sibr-03-hetzner.sibr.dev
       - --log.level=INFO
       - --metrics.prometheus.manualRouting=true
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=proxy
+    environment:
+      HTTPREQ_ENDPOINT: http://acme-dns
     networks:
+      - acme-dns
       - proxy
     labels:
       traefik.enable: true
@@ -37,7 +45,20 @@ services:
     volumes:
       - /srv/docker/management/traefik_data:/data
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - acme-dns
     mem_limit: 256m
+
+  acme-dns:
+    restart: unless-stopped
+    image: ghcr.io/iliana/lego-httpreq-server
+    command: [/lego-httpreq-server, --http-addr, "[::]:80"]
+    networks:
+      - acme-dns
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    mem_limit: 16m
 
   whoami:
     restart: unless-stopped
@@ -50,5 +71,6 @@ services:
     mem_limit: 16m
 
 networks:
+  acme-dns: {}
   proxy:
     name: proxy
