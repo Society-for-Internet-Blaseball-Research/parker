@@ -37,7 +37,7 @@ services:
       traefik.http.middlewares.compression.compress: true
       traefik.http.middlewares.compression.compress.excludedContentTypes: text/event-stream
       traefik.http.middlewares.globalHeaders.headers.customResponseHeaders.Permissions-Policy: interest-cohort=()
-      traefik.http.routers.traefik-metrics.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`) && PathPrefix(`/metrics`)
+      traefik.http.routers.traefik-metrics.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`) && Path(`/metrics`)
       traefik.http.routers.traefik-metrics.service: prometheus@internal
     ports:
       - 80:80
