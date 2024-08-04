@@ -37,6 +37,9 @@ services:
       traefik.http.middlewares.compression.compress: true
       traefik.http.middlewares.compression.compress.excludedContentTypes: text/event-stream
       traefik.http.middlewares.globalHeaders.headers.customResponseHeaders.Permissions-Policy: interest-cohort=()
+      traefik.http.routers.traefik-api.middlewares: mgmt-auth@docker
+      traefik.http.routers.traefik-api.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`)
+      traefik.http.routers.traefik-api.service: api@internal
       traefik.http.routers.traefik-metrics.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`) && Path(`/metrics`)
       traefik.http.routers.traefik-metrics.service: prometheus@internal
     ports:
@@ -48,6 +51,22 @@ services:
     depends_on:
       - acme-dns
     mem_limit: 256m
+
+  # This service is a hack to allow reloading mgmt.htpasswd without bouncing
+  # Traefik; restarting this container will reconfigure the mgmt-auth
+  # middleware, which will trigger a reload of the users file.
+  auth-file-trigger:
+    restart: unless-stopped
+    image: busybox
+    command: "sh -c 'trap : TERM INT; sleep infinity & wait'"
+    networks:
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.mgmt-auth.basicAuth.realm: SIBR Management
+      traefik.http.middlewares.mgmt-auth.basicAuth.usersFile: /data/mgmt.htpasswd
+      traefik.http.services.auth-file-trigger.loadbalancer.server.port: 86
+    mem_limit: 16m
 
   acme-dns:
     restart: unless-stopped

@@ -58,6 +58,7 @@
       - vim
       - wget
       # necessary to run the ansible playbook / scripts
+      - apache2-utils
       - git
       - jq
       - motd-news-config
@@ -301,6 +302,15 @@
         state: directory
       loop:
         - /srv/docker/management/traefik_data
+    - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
+      file:
+        path: /srv/docker/management/traefik_data/mgmt.htpasswd
+        owner: root
+        group: root
+        mode: '0600'
+        state: touch
+        access_time: preserve
+        modification_time: preserve
     - name: Manage Compose stacks
       community.docker.docker_compose_v2:
         project_src: "{{ item }}"
