@@ -271,6 +271,10 @@
         path: /etc/default/motd-news
         regexp: '^ENABLED='
         line: ENABLED=0
+    - name: Deploy /etc/logrotate.d/sibr
+      template:
+        src: etc/logrotate.conf
+        dest: /etc/logrotate.d/sibr
 
     # Users and groups.
     - name: Create users
