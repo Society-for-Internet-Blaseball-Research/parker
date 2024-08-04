@@ -34,6 +34,14 @@ You can also provide a URL with a list of keys:
 ./scripts/add_authorized_key.sh iliana https://github.com/iliana.keys
 ```
 
+## Updating your password for the `SIBR Management` basic auth realm
+
+Various ops dashboards require HTTP basic auth. To set or reset your password, run:
+
+```
+./scripts/set_mgmt_password.sh
+```
+
 ## Cleaning up from uninstalled packages
 
 Uninstalling a package with `apt` can leave ancillary files (configuration, logs, etc.) behind. `dpkg` keeps track of these packages. Run this to clean these packages up:
