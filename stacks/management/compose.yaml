@@ -65,6 +65,7 @@ services:
       traefik.enable: true
       traefik.http.middlewares.mgmt-auth.basicAuth.realm: SIBR Management
       traefik.http.middlewares.mgmt-auth.basicAuth.usersFile: /data/mgmt.htpasswd
+      traefik.http.routers.auth-file-trigger.service: noop@internal
       traefik.http.services.auth-file-trigger.loadbalancer.server.port: 86
     mem_limit: 16m
 
