@@ -3,7 +3,7 @@ name: management
 services:
   traefik:
     restart: unless-stopped
-    image: traefik:v3.1
+    image: traefik:3.1.1
     command:
       - --accessLog.filePath=/data/access.log
       - --accessLog.format=json
@@ -58,7 +58,17 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
+    labels:
+      com.centurylinklabs.watchtower.enable: true
     mem_limit: 16m
+
+  watchtower:
+    restart: unless-stopped
+    image: ghcr.io/containrrr/watchtower:1.7.1
+    command: --interval 120 --label-enable --cleanup
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    mem_limit: 32m
 
   whoami:
     restart: unless-stopped
@@ -66,6 +76,7 @@ services:
     networks:
       - proxy
     labels:
+      com.centurylinklabs.watchtower.enable: true
       traefik.enable: true
       traefik.http.routers.whoami.rule: Host(`whoami.sibr-03-hetzner.sibr.dev`)
     mem_limit: 16m
