@@ -62,7 +62,7 @@ services:
 
   whoami:
     restart: unless-stopped
-    image: traefik/whoami
+    image: ghcr.io/traefik/whoami
     networks:
       - proxy
     labels:
