@@ -1,0 +1,22 @@
+---
+- name: Download restic
+  get_url:
+    url: https://github.com/restic/restic/releases/download/v{{ restic.version }}/restic_{{ restic.version }}_linux_amd64.bz2
+    dest: /usr/local/bin/restic-{{ restic.version }}.bz2
+    checksum: '{{ restic.checksum }}'
+- name: Uncompress restic
+  command:
+    argv:
+      - bunzip2
+      - --keep
+      - /usr/local/bin/restic-{{ restic.version }}.bz2
+    creates: /usr/local/bin/restic-{{ restic.version }}
+- name: Set executable bit on restic
+  file:
+    path: /usr/local/bin/restic-{{ restic.version }}
+    mode: '0755'
+- name: Symlink restic-{{ restic.version }} to restic
+  file:
+    src: restic-{{ restic.version }}
+    dest: /usr/local/bin/restic
+    state: link

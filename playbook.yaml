@@ -4,6 +4,8 @@
   become: true
   become_method: sudo
 
+  vars_files:
+    etc/restic-vars.yaml
   vars:
     users:
       dlareau: {admin: true}
@@ -59,9 +61,11 @@
       - wget
       # necessary to run the ansible playbook / scripts
       - apache2-utils
+      - bzip2
       - git
       - jq
       - motd-news-config
+      - openssh-client
       - pipx
       # hardware management
       - dmidecode
@@ -78,7 +82,7 @@
       - htop
       - inetutils-telnet
       - moreutils
-      - openssh-client
+      - ncdu
       - screen
       - shellcheck
       - tmux
@@ -256,6 +260,9 @@
         PIPX_HOME: /opt/pipx
         PIPX_BIN_DIR: /usr/local/bin
         PIPX_MAN_DIR: /usr/local/share/man
+    # Download and install restic.
+    - name: Download and install restic
+      include_tasks: file=etc/install-restic.yaml
 
     # Post-install system configuration.
     - name: Deploy /etc/docker/daemon.json
@@ -317,3 +324,36 @@
         remove_orphans: true
       loop:
         - stacks/management
+
+    # Backup script.
+    - name: Deploy sibr-backup.service
+      template:
+        src: etc/sibr-backup.service
+        dest: /etc/systemd/system/sibr-backup.service
+      vars:
+        backup_dirs:
+          - /srv/docker/management/traefik_data
+          - /var/log
+        restic_args:
+          - --insecure-no-password
+          - --option=sftp.args=-i /root/.ssh/restic_ed25519 -o ServerAliveInterval=60 -o ServerAliveCountMax=240
+        forget_args:
+          - --keep-within-hourly=8d
+          - --keep-within-daily=1m
+          - --keep-within-weekly=1y
+          - --prune
+      register: sibr_backup_service
+    - name: Deploy sibr-backup.timer
+      template:
+        src: etc/sibr-backup.timer
+        dest: /etc/systemd/system/sibr-backup.timer
+      register: sibr_backup_timer
+    - name: systemctl daemon-reload
+      systemd_service:
+        daemon_reload: true
+      when: sibr_backup_service is changed or sibr_backup_timer is changed
+    - name: Enable sibr-backup.timer
+      systemd_service:
+        name: sibr-backup.timer
+        state: started
+        enabled: true
