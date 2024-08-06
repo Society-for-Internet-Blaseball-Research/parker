@@ -57,8 +57,7 @@ services:
   # middleware, which will trigger a reload of the users file.
   auth-file-trigger:
     restart: unless-stopped
-    image: busybox
-    command: "sh -c 'trap : TERM INT; sleep infinity & wait'"
+    image: ghcr.io/iliana/paws
     networks:
       - proxy
     labels:
