@@ -1,0 +1,35 @@
+name: netdata
+
+services:
+  netdata:
+    restart: unless-stopped
+    image: netdata/netdata:stable
+    container_name: netdata
+    hostname: netdata.sibr-03-hetzner.sibr.dev
+    networks:
+      - proxy
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /srv/docker/netdata/config:/etc/netdata
+      - /srv/docker/netdata/identity:/var/lib/netdata
+      - /srv/docker/netdata/metrics:/var/cache/netdata
+      - /:/host/root:ro,rslave
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /var/log:/host/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/dbus:/run/dbus:ro
+    labels:
+      traefik.enable: true
+      traefik.http.routers.netdata.middlewares: mgmt-auth@docker
+      traefik.http.routers.netdata.rule: Host(`netdata.sibr-03-hetzner.sibr.dev`)
+
+networks:
+  proxy:
+    external: true
+    name: proxy

@@ -309,6 +309,9 @@
         state: directory
       loop:
         - /srv/docker/management/traefik_data
+        - /srv/docker/netdata/config
+        - /srv/docker/netdata/identity
+        - /srv/docker/netdata/metrics
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
       file:
         path: /srv/docker/management/traefik_data/mgmt.htpasswd
@@ -324,6 +327,7 @@
         remove_orphans: true
       loop:
         - stacks/management
+        - stacks/netdata
 
     # Backup script.
     - name: Deploy sibr-backup.service
@@ -333,6 +337,8 @@
       vars:
         backup_dirs:
           - /srv/docker/management/traefik_data
+          - /srv/docker/netdata/config
+          - /srv/docker/netdata/identity
           - /var/log
         restic_args:
           - --insecure-no-password
