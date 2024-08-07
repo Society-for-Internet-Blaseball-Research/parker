@@ -3,7 +3,7 @@ name: management
 services:
   traefik:
     restart: unless-stopped
-    image: traefik:3.1.1
+    image: traefik:3.1.2
     command:
       - --accessLog.filePath=/data/access.log
       - --accessLog.format=json
