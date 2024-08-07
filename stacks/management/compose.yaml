@@ -23,8 +23,9 @@ services:
       - --entrypoints.https.http.tls.domains[0].main=*.sibr.dev
       - --entrypoints.https.http.tls.domains[0].sans=sibr.dev
       - --entrypoints.https.http.tls.domains[1].main=*.sibr-03-hetzner.sibr.dev
+      - --entrypoints.metrics.address=:8082
       - --log.level=INFO
-      - --metrics.prometheus.manualRouting=true
+      - --metrics.prometheus.entryPoint=metrics
       - --providers.docker.exposedByDefault=false
       - --providers.docker.network=proxy
     environment:
@@ -40,8 +41,6 @@ services:
       traefik.http.routers.traefik-api.middlewares: mgmt-auth@docker
       traefik.http.routers.traefik-api.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`)
       traefik.http.routers.traefik-api.service: api@internal
-      traefik.http.routers.traefik-metrics.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`) && Path(`/metrics`)
-      traefik.http.routers.traefik-metrics.service: prometheus@internal
     ports:
       - 80:80
       - 443:443

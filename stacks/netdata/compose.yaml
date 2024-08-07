@@ -6,6 +6,8 @@ services:
     image: netdata/netdata:stable
     container_name: netdata
     hostname: netdata.sibr-03-hetzner.sibr.dev
+    environment:
+      NETDATA_DISABLE_CLOUD: 1
     networks:
       - proxy
     security_opt:

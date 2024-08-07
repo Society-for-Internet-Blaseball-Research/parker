@@ -309,7 +309,7 @@
         state: directory
       loop:
         - /srv/docker/management/traefik_data
-        - /srv/docker/netdata/config
+        - /srv/docker/netdata/config/go.d
         - /srv/docker/netdata/identity
         - /srv/docker/netdata/metrics
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
@@ -321,6 +321,12 @@
         state: touch
         access_time: preserve
         modification_time: preserve
+    - name: Netdata configuration
+      template:
+        src: etc/netdata/{{ item }}
+        dest: /srv/docker/netdata/config/{{ item }}
+      loop:
+        - go.d/traefik.conf
     - name: Manage Compose stacks
       community.docker.docker_compose_v2:
         project_src: "{{ item }}"
