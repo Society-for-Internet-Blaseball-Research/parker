@@ -186,6 +186,11 @@
       loop:
         - ubuntu.sources
         - docker.sources
+      register: custom_apt_sources
+    - name: Force refresh apt cache
+      apt:
+        update_cache: yes
+      when: custom_apt_sources is changed
     # Install all the packages.
     - name: Install required packages
       apt:
