@@ -83,10 +83,15 @@
       - bind9-dnsutils
       - htop
       - inetutils-telnet
+      - kitty-terminfo
       - moreutils
       - ncdu
+      - neovim
       - postgresql-client-16
       - pv
+      - python3-pip
+      - python3-psycopg2
+      - python-wheel-common
       - screen
       - shellcheck
       - tmux
