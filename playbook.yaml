@@ -85,6 +85,8 @@
       - inetutils-telnet
       - moreutils
       - ncdu
+      - postgresql-client-16
+      - pv
       - screen
       - shellcheck
       - tmux
