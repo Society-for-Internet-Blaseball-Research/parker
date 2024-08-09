@@ -11,7 +11,7 @@ services:
       - /srv/docker/chronicler/db:/var/lib/postgresql/data
     networks:
       - local
-    mem_limit: 8g
+    mem_limit: 32g
 
   api:
     restart: unless-stopped
@@ -36,7 +36,7 @@ services:
       traefik.http.routers.chronicler.rule: >
         (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) && PathPrefix(`/chronicler/`)
       traefik.http.services.chronicler.loadbalancer.server.port: 80
-    mem_limit: 1g
+    mem_limit: 512m
 
 networks:
   local: {}
