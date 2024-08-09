@@ -15,7 +15,7 @@ services:
 
   api:
     restart: unless-stopped
-    image: sha256:8597117ea8daea59e95b7a0d3ba37c224a2ad018d084f0b440624799d42d6485
+    image: localhost:5000/chronicler:sha256-8597117ea8daea59e95b7a0d3ba37c224a2ad018d084f0b440624799d42d6485
     command: ["SIBR.Storage.API.dll"]
     environment:
       POSTGRES_CONNECTION: 'Host=db;Port=5432;Username=postgres;Password=password;Database=blaseball'

@@ -1,0 +1,18 @@
+name: olareg
+
+services:
+  rw:
+    restart: unless-stopped
+    image: ghcr.io/olareg/olareg:v0.1.0
+    command: serve --dir /data
+    user: root
+    ports:
+      - 5000:5000
+    volumes:
+      - /srv/docker/olareg/data:/data
+    networks:
+      - local
+    mem_limit: 256m
+
+networks:
+  local: {}
