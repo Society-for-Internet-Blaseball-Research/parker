@@ -317,6 +317,8 @@
         path: "{{ item }}"
         state: directory
       loop:
+        - /srv/docker/chronicler/db
+        - /srv/docker/chronicler/logs/api
         - /srv/docker/management/traefik_data
         - /srv/docker/netdata/config/go.d
         - /srv/docker/netdata/identity
@@ -343,6 +345,7 @@
       loop:
         - stacks/management
         - stacks/netdata
+        - stacks/chronicler
 
     # Backup script.
     - name: Deploy sibr-backup.service

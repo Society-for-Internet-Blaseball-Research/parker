@@ -1,0 +1,45 @@
+name: chronicler
+
+services:
+  db:
+    restart: unless-stopped
+    image: postgres:12
+    environment:
+      POSTGRES_DB: blaseball
+      POSTGRES_PASSWORD: password
+    volumes:
+      - /srv/docker/chronicler/db:/var/lib/postgresql/data
+    networks:
+      - local
+    mem_limit: 8g
+
+  api:
+    restart: unless-stopped
+    image: sha256:8597117ea8daea59e95b7a0d3ba37c224a2ad018d084f0b440624799d42d6485
+    command: ["SIBR.Storage.API.dll"]
+    environment:
+      POSTGRES_CONNECTION: 'Host=db;Port=5432;Username=postgres;Password=password;Database=blaseball'
+      ASPNETCORE_URLS: http://0.0.0.0:80;http://127.0.0.1:4011
+      ASPNETCORE_ENVIRONMENT: Production
+      SIBR_PRIVATE_PORT: 4011
+    ports:
+      - 127.0.0.1:4011:4011
+    networks:
+      - local
+      - proxy
+    volumes:
+      - /srv/docker/chronicler/logs/api:/app/out/logs
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.chronicler-prefix.stripprefix.prefixes: /chronicler
+      traefik.http.routers.chronicler.middlewares: chronicler-prefix@docker
+      traefik.http.routers.chronicler.rule: >
+        (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) && PathPrefix(`/chronicler/`)
+      traefik.http.services.chronicler.loadbalancer.server.port: 80
+    mem_limit: 1g
+
+networks:
+  local: {}
+  proxy:
+    external: true
+    name: proxy
