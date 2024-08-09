@@ -314,6 +314,7 @@
       vars:
         admin_groups:
           - docker
+          - staff # used for setgid directories
           - sudo
           - systemd-journal
     - name: Ensure /root/.ssh/authorized_keys is absent
@@ -322,7 +323,7 @@
         state: absent
 
     # Compose stacks.
-    - name: Create Compose stack directories
+    - name: Create Compose stack directories (root-owned)
       file:
         path: "{{ item }}"
         state: directory
@@ -334,6 +335,14 @@
         - /srv/docker/netdata/identity
         - /srv/docker/netdata/metrics
         - /srv/docker/olareg/data
+    - name: Create Compose stack directories (setgid staff)
+      file:
+        path: "{{ item }}"
+        state: directory
+        group: staff
+        mode: '2775'
+      loop:
+        - /srv/www/stacks.sibr.dev
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
       file:
         path: /srv/docker/management/traefik_data/mgmt.htpasswd
