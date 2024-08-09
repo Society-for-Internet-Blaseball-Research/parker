@@ -30,6 +30,7 @@ services:
       traefik.enable: true
       traefik.http.routers.netdata.middlewares: mgmt-auth@docker
       traefik.http.routers.netdata.rule: Host(`netdata.sibr-03-hetzner.sibr.dev`)
+    mem_limit: 512m
 
 networks:
   proxy:
