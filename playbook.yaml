@@ -40,6 +40,7 @@
       - docker-compose-plugin
       # other important packages not in the above lists
       - curl
+      - dbus-user-session
       - efibootmgr
       - iproute2
       - iputils-ping
