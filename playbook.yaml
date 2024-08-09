@@ -155,6 +155,11 @@
         src: etc/sudoers
         dest: /etc/sudoers
         validate: 'visudo -cf %s'
+    - name: Create home directories as 0755 by default
+      lineinfile:
+        path: /etc/adduser.conf
+        regexp: ^#?DIR_MODE=
+        line: DIR_MODE=0755
     - name: Disable resume support in initramfs
       lineinfile:
         path: /etc/initramfs-tools/initramfs.conf
