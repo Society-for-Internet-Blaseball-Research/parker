@@ -10,9 +10,4 @@ services:
       - 5000:5000
     volumes:
       - /srv/docker/olareg/data:/data
-    networks:
-      - local
     mem_limit: 256m
-
-networks:
-  local: {}

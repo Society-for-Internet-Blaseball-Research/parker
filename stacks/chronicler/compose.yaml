@@ -9,8 +9,6 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - /srv/docker/chronicler/db:/var/lib/postgresql/data
-    networks:
-      - local
     mem_limit: 32g
 
   api:
@@ -25,7 +23,7 @@ services:
     ports:
       - 127.0.0.1:4011:4011
     networks:
-      - local
+      - default
       - proxy
     volumes:
       - /srv/docker/chronicler/logs/api:/app/out/logs
@@ -39,7 +37,6 @@ services:
     mem_limit: 512m
 
 networks:
-  local: {}
   proxy:
     external: true
     name: proxy
