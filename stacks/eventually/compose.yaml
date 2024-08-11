@@ -5,8 +5,17 @@ services:
     restart: unless-stopped
     image: ghcr.io/kore-signet/eventually:db
     environment:
+      # These are hardcoded in the upnuts-query image (/app/upnuts-r2dbc.json).
+      # We could swap that file out, or we could just do this...
       POSTGRES_DB: eventually
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: upnuts
+      POSTGRES_PASSWORD: a
+    networks:
+      default: {}
+      # This network is for the upnuts stack to use.
+      eventually:
+        aliases:
+          - eventually_db
     volumes:
       - /srv/docker/eventually/db:/var/lib/postgresql/data
     mem_limit: 16g
@@ -19,13 +28,13 @@ services:
       - db
     user: root
     environment:
-      ROCKET_DATABASES: '{eventually={url=postgres://postgres:password@db/eventually, pool_size = 100}}'
+      ROCKET_DATABASES: '{eventually={url=postgres://upnuts:a@db/eventually}}'
       ROCKET_CACHE_PATH: /data
       ROCKET_CACHE_TEMPORARY: true
       PG_HOST: db
-      PG_USER: postgres
+      PG_USER: upnuts
       PG_DBNAME: eventually
-      PG_PASSWORD: password
+      PG_PASSWORD: a
       RUST_LOG: info
       ROCKET_LOG_LEVEL: normal
       ROCKET_ADDRESS: 0.0.0.0
@@ -46,6 +55,8 @@ services:
     mem_limit: 512m
 
 networks:
+  eventually:
+    name: eventually
   proxy:
     external: true
     name: proxy

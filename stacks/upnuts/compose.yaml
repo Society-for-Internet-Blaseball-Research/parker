@@ -1,0 +1,40 @@
+name: upnuts
+
+services:
+  postgresql:
+    restart: unless-stopped
+    image: postgres:13
+    volumes:
+      - /srv/docker/upnuts/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: upnuts
+      POSTGRES_USER: upnuts
+      POSTGRES_PASSWORD: shells-and-scales
+    mem_limit: 16g
+    memswap_limit: 18g
+
+  query:
+    restart: unless-stopped
+    image: undermybrella/upnuts-query
+    depends_on:
+      - postgresql
+    networks:
+      - default
+      - eventually
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.upnuts-prefix.stripprefix.prefixes: /upnuts
+      traefik.http.routers.upnuts.middlewares: upnuts-prefix@docker
+      traefik.http.routers.upnuts.rule: >
+        (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) && PathPrefix(`/upnuts/`)
+      traefik.http.services.upnuts.loadbalancer.server.port: 9796
+    mem_limit: 1g
+
+networks:
+  eventually:
+    external: true
+    name: eventually
+  proxy:
+    external: true
+    name: proxy

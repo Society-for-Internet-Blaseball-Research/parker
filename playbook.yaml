@@ -344,6 +344,7 @@
         - /srv/docker/netdata/identity
         - /srv/docker/netdata/metrics
         - /srv/docker/olareg/data
+        - /srv/docker/upnuts/db
     - name: Create Compose stack directories (setgid staff)
       file:
         path: "{{ item }}"
@@ -386,6 +387,7 @@
         - stacks/chronicler
         - stacks/datablase
         - stacks/eventually
+        - stacks/upnuts
 
     # Extra Datablase setup.
     - name: Deny Datablase superuser logins from the internet
