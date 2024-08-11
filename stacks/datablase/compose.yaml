@@ -1,0 +1,22 @@
+name: datablase
+
+services:
+  db:
+    restart: unless-stopped
+    image: postgres:12
+    environment:
+      POSTGRES_DB: blaseball-2.14.8
+      POSTGRES_PASSWORD_FILE: /run/secrets/superuser_password
+    ports:
+      - 1019:5432
+    volumes:
+      - /srv/docker/datablase/db:/var/lib/postgresql/data
+    secrets:
+      - superuser_password
+    cpus: 4
+    mem_limit: 16g
+    memswap_limit: 18g
+
+secrets:
+  superuser_password:
+    file: /srv/docker/datablase/auth/superuser

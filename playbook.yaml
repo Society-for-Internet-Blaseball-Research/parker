@@ -100,6 +100,8 @@
   handlers:
     - name: dpkg-reconfigure locales
       command: dpkg-reconfigure -f noninteractive locales
+    - name: reload datablase
+      command: docker kill --signal=SIGHUP datablase-db-1
     - name: reload ssh
       service: name=ssh state=reloaded
 
@@ -261,6 +263,7 @@
       community.general.pipx:
         name: ansible
         source: ansible==10.2.0
+        system_site_packages: true
         executable: pipx
       environment:
         PIPX_HOME: /opt/pipx
@@ -330,6 +333,8 @@
       loop:
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
+        - /srv/docker/datablase/auth
+        - /srv/docker/datablase/db
         - /srv/docker/management/traefik_data
         - /srv/docker/netdata/config/go.d
         - /srv/docker/netdata/identity
@@ -358,6 +363,14 @@
         dest: /srv/docker/netdata/config/{{ item }}
       loop:
         - go.d/traefik.conf
+    - name: Generate random superuser password for Datablase
+      copy:
+        content: >
+          {{ lookup("password", "/dev/null") }}
+        dest: /srv/docker/datablase/auth/superuser
+        force: false
+        group: staff
+        mode: '0640'
     - name: Manage Compose stacks
       community.docker.docker_compose_v2:
         project_src: "{{ item }}"
@@ -367,6 +380,51 @@
         - stacks/olareg
         - stacks/netdata
         - stacks/chronicler
+
+    # Extra Datablase setup.
+    - name: Deny Datablase superuser logins from the internet
+      community.postgresql.postgresql_pg_hba:
+        dest: /srv/docker/datablase/db/pg_hba.conf
+        rules:
+          - contype: host
+            users: postgres
+            address: 172.16.0.0/14
+            method: md5
+          - contype: host
+            users: postgres
+            address: all
+            method: reject
+      notify:
+        - reload datablase
+    - name: Create up Datablase guest user
+      community.postgresql.postgresql_user:
+        login_host: localhost
+        login_port: 1019
+        login_user: postgres
+        login_password: '{{ lookup("file", "/srv/docker/datablase/auth/superuser") }}'
+        db: "blaseball-2.14.8"
+        name: guest
+        password: md569e5a2417104b24c7fcc25a28ec4c1aa
+    # Note that this probably doesn't work _after_ pg_restore. Not sure what to do about that.
+    - name: Set default access for guest user
+      community.postgresql.postgresql_privs:
+        login_host: localhost
+        login_port: 1019
+        login_user: postgres
+        login_password: '{{ lookup("file", "/srv/docker/datablase/auth/superuser") }}'
+        db: "blaseball-2.14.8"
+        schema: not-specified
+        objs: '{{ item.objs }}'
+        privs: '{{ item.privs }}'
+        type: default_privs
+        role: guest
+      loop:
+        - objs: SCHEMAS
+          privs: USAGE
+        - objs: TABLES,SEQUENCES
+          privs: SELECT
+        - objs: FUNCTIONS
+          privs: EXECUTE
 
     # Backup script.
     - name: Deploy sibr-backup.service
