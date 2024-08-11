@@ -81,6 +81,7 @@
       # everything else
       - bash-completion
       - bind9-dnsutils
+      - build-essential
       - htop
       - inetutils-telnet
       - kitty-terminfo
@@ -92,6 +93,7 @@
       - python3-pip
       - python3-psycopg2
       - python-wheel-common
+      - rustup
       - screen
       - shellcheck
       - tmux
