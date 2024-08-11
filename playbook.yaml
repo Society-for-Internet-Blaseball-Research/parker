@@ -337,6 +337,8 @@
         - /srv/docker/chronicler/logs/api
         - /srv/docker/datablase/auth
         - /srv/docker/datablase/db
+        - /srv/docker/eventually/db
+        - /srv/docker/eventually/sachet_cache
         - /srv/docker/management/traefik_data
         - /srv/docker/netdata/config/go.d
         - /srv/docker/netdata/identity
@@ -383,6 +385,7 @@
         - stacks/netdata
         - stacks/chronicler
         - stacks/datablase
+        - stacks/eventually
 
     # Extra Datablase setup.
     - name: Deny Datablase superuser logins from the internet

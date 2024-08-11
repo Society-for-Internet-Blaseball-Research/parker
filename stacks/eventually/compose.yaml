@@ -1,0 +1,50 @@
+name: eventually
+
+services:
+  db:
+    restart: unless-stopped
+    image: ghcr.io/kore-signet/eventually:db
+    environment:
+      POSTGRES_DB: eventually
+      POSTGRES_PASSWORD: password
+    volumes:
+      - /srv/docker/eventually/db:/var/lib/postgresql/data
+    mem_limit: 16g
+    memswap_limit: 18g
+  api:
+    restart: unless-stopped
+    image: ghcr.io/kore-signet/eventually:server
+    depends_on:
+      - db
+    user: root
+    environment:
+      ROCKET_DATABASES: '{eventually={url=postgres://postgres:password@db/eventually, pool_size = 100}}'
+      ROCKET_CACHE_PATH: /data
+      ROCKET_CACHE_TEMPORARY: true
+      PG_HOST: db
+      PG_USER: postgres
+      PG_DBNAME: eventually
+      PG_PASSWORD: password
+      RUST_LOG: info
+      ROCKET_LOG_LEVEL: normal
+      ROCKET_ADDRESS: 0.0.0.0
+      ROCKET_PORT: 4445
+    networks:
+      - default
+      - proxy
+    volumes:
+      - /srv/docker/eventually/sachet_cache:/data
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.eventually-prefix.stripPrefixRegex.regex: \/eventually\/(v2\/)?
+      traefik.http.routers.eventually.middlewares: eventually-prefix@docker
+      traefik.http.routers.eventually.rule: >
+        ((Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) &&
+         (PathPrefix(`/eventually/`) || PathPrefix(`/sachet/`)))
+      traefik.http.services.eventually.loadbalancer.server.port: 4445
+    mem_limit: 512m
+
+networks:
+  proxy:
+    external: true
+    name: proxy
