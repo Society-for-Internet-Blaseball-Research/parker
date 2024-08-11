@@ -11,6 +11,7 @@ services:
       - /srv/docker/eventually/db:/var/lib/postgresql/data
     mem_limit: 16g
     memswap_limit: 18g
+
   api:
     restart: unless-stopped
     image: ghcr.io/kore-signet/eventually:server

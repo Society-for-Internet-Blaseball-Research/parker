@@ -10,11 +10,14 @@ services:
     volumes:
       - /srv/docker/chronicler/db:/var/lib/postgresql/data
     mem_limit: 32g
+    memswap_limit: 34g
 
   api:
     restart: unless-stopped
     image: localhost:5000/chronicler:sha256-8597117ea8daea59e95b7a0d3ba37c224a2ad018d084f0b440624799d42d6485
     command: ["SIBR.Storage.API.dll"]
+    depends_on:
+      - db
     environment:
       POSTGRES_CONNECTION: 'Host=db;Port=5432;Username=postgres;Password=password;Database=blaseball'
       ASPNETCORE_URLS: http://0.0.0.0:80;http://127.0.0.1:4011

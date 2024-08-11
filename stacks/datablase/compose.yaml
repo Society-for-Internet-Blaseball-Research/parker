@@ -16,9 +16,12 @@ services:
     cpus: 4
     mem_limit: 16g
     memswap_limit: 18g
+
   api:
     restart: unless-stopped
     image: blaseballsibr/datablase:1.7.1
+    depends_on:
+      - db
     environment:
       NODE_ENV: production
       SIBR_API_HOST: api.blaseball-reference.com
@@ -39,7 +42,7 @@ services:
          (PathPrefix(`/datablase/`) || PathPrefix(`/docs/`) || Path(`/docs.json`)))
       # TODO: add Host(`api.blaseball-reference.com`)
       traefik.http.services.datablase.loadbalancer.server.port: 3000
-    mem_limit: 4g
+    mem_limit: 512m
 
 networks:
   proxy:
