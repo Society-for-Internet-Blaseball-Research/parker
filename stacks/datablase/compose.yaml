@@ -16,6 +16,35 @@ services:
     cpus: 4
     mem_limit: 16g
     memswap_limit: 18g
+  api:
+    restart: unless-stopped
+    image: blaseballsibr/datablase:1.7.1
+    environment:
+      NODE_ENV: production
+      SIBR_API_HOST: api.blaseball-reference.com
+      PGHOST: db
+      PGUSER: guest
+      PGPASSWORD: sibr
+      PGDATABASE: blaseball-2.14.8
+      DATABASE_URL: postgresql://guest:sibr@db/blaseball-2.14.8?schema=data&connection_limit=15&socket_timeout=45&connect_timeout=15
+    networks:
+      - default
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.datablase-prefix.stripprefix.prefixes: /datablase
+      traefik.http.routers.datablase.middlewares: datablase-prefix@docker
+      traefik.http.routers.datablase.rule: >
+        ((Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) &&
+         (PathPrefix(`/datablase/`) || PathPrefix(`/docs/`) || Path(`/docs.json`)))
+      # TODO: add Host(`api.blaseball-reference.com`)
+      traefik.http.services.datablase.loadbalancer.server.port: 3000
+    mem_limit: 4g
+
+networks:
+  proxy:
+    name: proxy
+    external: true
 
 secrets:
   superuser_password:

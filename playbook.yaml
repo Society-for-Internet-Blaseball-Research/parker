@@ -382,6 +382,7 @@
         - stacks/olareg
         - stacks/netdata
         - stacks/chronicler
+        - stacks/datablase
 
     # Extra Datablase setup.
     - name: Deny Datablase superuser logins from the internet
