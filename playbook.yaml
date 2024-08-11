@@ -384,9 +384,11 @@
         - stacks/management
         - stacks/olareg
         - stacks/netdata
+
         - stacks/chronicler
         - stacks/datablase
         - stacks/eventually
+        - stacks/replay
         - stacks/upnuts
 
     # Extra Datablase setup.
