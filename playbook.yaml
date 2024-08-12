@@ -392,6 +392,11 @@
         - stacks/replay
         - stacks/upnuts
 
+        - stacks/before
+        - stacks/compendium
+        - stacks/json2csv
+        - stacks/telnet
+
     # Extra Datablase setup.
     - name: Deny Datablase superuser logins from the internet
       community.postgresql.postgresql_pg_hba:

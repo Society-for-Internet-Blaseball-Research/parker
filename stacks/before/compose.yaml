@@ -1,0 +1,24 @@
+name: before
+
+services:
+  app:
+    restart: unless-stopped
+    image: ghcr.io/iliana/before
+    environment:
+      ROCKET_ADDRESS: 0.0.0.0
+      ROCKET_HTTP_CLIENT_GZIP: false
+      ROCKET_SIESTA_MODE: true
+      ROCKET_STREAM_CACHE_SIZE: 50
+    networks:
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.routers.before.entrypoints: https
+      traefik.http.routers.before.rule: Host(`before.sibr.dev`)
+      traefik.http.services.before.loadbalancer.server.port: 8000
+    mem_limit: 1g
+
+networks:
+  proxy:
+    external: true
+    name: proxy

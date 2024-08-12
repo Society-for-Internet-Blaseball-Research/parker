@@ -1,0 +1,12 @@
+name: telnet
+
+services:
+  why:
+    restart: unless-stopped
+    image: ghcr.io/kore-signet/blases-over-telnet
+    ports:
+      - 23:8023
+    environment:
+      PORT: 8023
+      SIBR_API_URL: https://api.sibr.dev
+    mem_limit: 512m
