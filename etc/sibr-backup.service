@@ -12,7 +12,7 @@ ConditionFileNotEmpty=/root/.ssh/restic_ed25519
 Environment=HOME=%h
 Environment=RESTIC_REPOSITORY=sftp://{{ lookup('file', 'storage-box.txt') }}:23/restic
 {% for dir in backup_dirs %}
-ExecStart=/usr/local/bin/restic {{ restic_args }} backup --one-file-system {{ dir|quote }}
+ExecStart=/usr/local/bin/restic {{ restic_args }} backup --one-file-system --skip-if-unchanged {{ dir|quote }}
 {% endfor %}
 ExecStart=/usr/local/bin/restic {{ restic_args }} forget {{ forget_args }}
 Type=oneshot
