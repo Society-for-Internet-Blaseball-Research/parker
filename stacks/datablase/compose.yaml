@@ -39,8 +39,8 @@ services:
       traefik.http.routers.datablase.middlewares: datablase-prefix@docker
       traefik.http.routers.datablase.rule: >
         ((Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) &&
-         (PathPrefix(`/datablase/`) || PathPrefix(`/docs/`) || Path(`/docs.json`)))
-      # TODO: add Host(`api.blaseball-reference.com`)
+         (PathPrefix(`/datablase/`) || PathPrefix(`/docs/`) || Path(`/docs.json`))) ||
+        Host(`api.blaseball-reference.com`)
       traefik.http.services.datablase.loadbalancer.server.port: 3000
     mem_limit: 512m
 

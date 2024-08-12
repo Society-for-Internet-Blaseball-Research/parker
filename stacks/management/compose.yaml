@@ -8,11 +8,16 @@ services:
       - --accessLog.filePath=/data/access.log
       - --accessLog.format=json
       - --api.dashboard=true
+      # the `acme-dns` resolver is used by default and is configured manually to obtain wildcard certs.
+      - --certificatesResolvers.acme-dns.acme.storage=/data/acme-dns.json
+      - --certificatesResolvers.acme-dns.acme.email=certs@sibr.dev
       - --certificatesResolvers.acme-dns.acme.dnsChallenge=true
       - --certificatesResolvers.acme-dns.acme.dnsChallenge.disablePropagationCheck=true
       - --certificatesResolvers.acme-dns.acme.dnsChallenge.provider=httpreq
-      - --certificatesResolvers.acme-dns.acme.email=certs@sibr.dev
-      - --certificatesResolvers.acme-dns.acme.storage=/data/acme-dns.json
+      # the `acme-tls` resolver can instead be used where we don't have a wildcard cert configured.
+      - --certificatesResolvers.acme-tls.acme.storage=/data/acme-tls.json
+      - --certificatesResolvers.acme-tls.acme.email=certs@sibr.dev
+      - --certificatesResolvers.acme-tls.acme.tlsChallenge=true
       - --entryPoints.http.address=:80
       - --entrypoints.http.http.redirections.entryPoint.scheme=https
       - --entrypoints.http.http.redirections.entryPoint.to=https
@@ -23,6 +28,8 @@ services:
       - --entrypoints.https.http.tls.domains[0].main=*.sibr.dev
       - --entrypoints.https.http.tls.domains[0].sans=sibr.dev
       - --entrypoints.https.http.tls.domains[1].main=*.sibr-03-hetzner.sibr.dev
+      - --entrypoints.https.http.tls.domains[2].main=*.blaseball-reference.com
+      - --entrypoints.https.http.tls.domains[2].sans=blaseball-reference.com
       - --entrypoints.metrics.address=:8082
       - --log.level=INFO
       - --metrics.prometheus.entryPoint=metrics
