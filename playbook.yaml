@@ -367,6 +367,7 @@
         src: etc/netdata/{{ item }}
         dest: /srv/docker/netdata/config/{{ item }}
       loop:
+        - netdata.conf
         - go.d/traefik.conf
     - name: Generate random superuser password for Datablase
       copy:
