@@ -1,3 +1,5 @@
+name: replay
+
 services:
   replay:
     restart: unless-stopped
