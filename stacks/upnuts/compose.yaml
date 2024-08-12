@@ -25,6 +25,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.middlewares.upnuts-prefix.stripprefix.prefixes: /upnuts
+      traefik.http.routers.upnuts.entrypoints: https
       traefik.http.routers.upnuts.middlewares: upnuts-prefix@docker
       traefik.http.routers.upnuts.rule: >
         (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) && PathPrefix(`/upnuts/`)

@@ -7,6 +7,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.middlewares.replay-prefix.stripprefix.prefixes: /replay
+      traefik.http.routers.replay.entrypoints: https
       traefik.http.routers.replay.middlewares: replay-prefix@docker
       traefik.http.routers.replay.rule: >
         (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`) || Host(`api-test.sibr.dev`))

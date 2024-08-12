@@ -45,6 +45,7 @@ services:
       traefik.http.middlewares.compression.compress: true
       traefik.http.middlewares.compression.compress.excludedContentTypes: text/event-stream
       traefik.http.middlewares.globalHeaders.headers.customResponseHeaders.Permissions-Policy: interest-cohort=()
+      traefik.http.routers.traefik-api.entrypoints: https
       traefik.http.routers.traefik-api.middlewares: mgmt-auth@docker
       traefik.http.routers.traefik-api.rule: Host(`traefik.sibr-03-hetzner.sibr.dev`)
       traefik.http.routers.traefik-api.service: api@internal
@@ -70,6 +71,7 @@ services:
       traefik.enable: true
       traefik.http.middlewares.mgmt-auth.basicAuth.realm: SIBR Management
       traefik.http.middlewares.mgmt-auth.basicAuth.usersFile: /data/mgmt.htpasswd
+      traefik.http.routers.auth-file-trigger.entrypoints: metrics
       traefik.http.routers.auth-file-trigger.service: noop@internal
       traefik.http.services.auth-file-trigger.loadbalancer.server.port: 86
     mem_limit: 16m
@@ -103,6 +105,7 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: true
       traefik.enable: true
+      traefik.http.routers.whoami.entrypoints: https
       traefik.http.routers.whoami.rule: Host(`whoami.sibr-03-hetzner.sibr.dev`)
     mem_limit: 16m
 

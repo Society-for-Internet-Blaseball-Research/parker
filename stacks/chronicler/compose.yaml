@@ -33,6 +33,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.middlewares.chronicler-prefix.stripprefix.prefixes: /chronicler
+      traefik.http.routers.chronicler.entrypoints: https
       traefik.http.routers.chronicler.middlewares: chronicler-prefix@docker
       traefik.http.routers.chronicler.rule: >
         (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) && PathPrefix(`/chronicler/`)

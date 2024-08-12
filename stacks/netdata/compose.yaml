@@ -28,6 +28,7 @@ services:
       - /run/dbus:/run/dbus:ro
     labels:
       traefik.enable: true
+      traefik.http.routers.netdata.entrypoints: https
       traefik.http.routers.netdata.middlewares: mgmt-auth@docker
       traefik.http.routers.netdata.rule: Host(`netdata.sibr-03-hetzner.sibr.dev`)
     mem_limit: 512m
