@@ -1,0 +1,26 @@
+name: teeny
+
+services:
+  tiny:
+    restart: unless-stopped
+    image: ghcr.io/kore-signet/teeny-rs
+    environment:
+      ROCKET_ALLOWLIST: sibr.dev;blaseball.wiki;blaseball-reference.com;insplect.netlify.app;blasement.brella.dev
+      ROCKET_ADDRESS: 0.0.0.0
+      ROCKET_DBPATH: /rocks
+    networks:
+      - proxy
+    volumes:
+      - /srv/docker/teeny/rocks:/rocks
+      - /srv/docker/teeny/teeny.csv:/teeny.csv
+    labels:
+      traefik.enable: true
+      traefik.http.routers.teeny.entrypoints: https
+      traefik.http.routers.teeny.rule: Host(`tiny.sibr.dev`)
+      traefik.http.services.teeny.loadbalancer.server.port: 8000
+    mem_limit: 512m
+
+networks:
+  proxy:
+    external: true
+    name: proxy

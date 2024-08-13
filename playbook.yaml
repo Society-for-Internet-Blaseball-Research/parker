@@ -345,6 +345,7 @@
         - /srv/docker/netdata/identity
         - /srv/docker/netdata/metrics
         - /srv/docker/olareg/data
+        - /srv/docker/teeny/rocks
         - /srv/docker/upnuts/db
     - name: Create Compose stack directories (setgid staff)
       file:
@@ -397,6 +398,7 @@
         - stacks/before
         - stacks/compendium
         - stacks/json2csv
+        - stacks/teeny
         - stacks/telnet
 
     # Extra Datablase setup.
@@ -456,6 +458,7 @@
           - /srv/docker/netdata/config
           - /srv/docker/netdata/identity
           - /srv/docker/olareg/data
+          - /srv/docker/teeny
           - /srv/www
         restic_args:
           - --insecure-no-password
