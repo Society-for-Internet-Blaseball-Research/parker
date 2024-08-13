@@ -1,0 +1,12 @@
+name: aeguir
+
+services:
+  bot:
+    restart: unless-stopped
+    image: ghcr.io/dannybd/aeguir
+    volumes:
+      - /srv/docker/aeguir/config.json:/usr/src/aeguir/config.json
+      - /srv/docker/aeguir/data:/usr/src/aeguir/data
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+    mem_limit: 512m

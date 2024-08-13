@@ -333,6 +333,7 @@
         path: "{{ item }}"
         state: directory
       loop:
+        - /srv/docker/aeguir/data
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
         - /srv/docker/datablase/auth
@@ -385,6 +386,7 @@
         - stacks/management
         - stacks/olareg
         - stacks/netdata
+        - stacks/aeguir
 
         - stacks/chronicler
         - stacks/datablase
@@ -449,6 +451,7 @@
         dest: /etc/systemd/system/sibr-backup.service
       vars:
         backup_dirs:
+          - /srv/docker/aeguir
           - /srv/docker/management/traefik_data
           - /srv/docker/netdata/config
           - /srv/docker/netdata/identity
