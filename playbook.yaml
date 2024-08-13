@@ -453,6 +453,7 @@
           - /srv/docker/netdata/config
           - /srv/docker/netdata/identity
           - /srv/docker/olareg/data
+          - /srv/www
         restic_args:
           - --insecure-no-password
           - --option=sftp.args=-i /root/.ssh/restic_ed25519 -o ServerAliveInterval=60 -o ServerAliveCountMax=240
