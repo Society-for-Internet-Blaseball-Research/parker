@@ -388,6 +388,7 @@
         - stacks/olareg
         - stacks/netdata
         - stacks/aeguir
+        - stacks/pgadmin
 
         - stacks/chronicler
         - stacks/datablase

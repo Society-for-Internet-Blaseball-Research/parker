@@ -1,0 +1,58 @@
+name: pgadmin
+
+services:
+  app:
+    restart: unless-stopped
+    image: dpage/pgadmin4:8
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /var/lib/pgadmin/storage/guest_sibr.dev
+        echo 'datablase-db-1:5432:*:guest:sibr' >/var/lib/pgadmin/storage/guest_sibr.dev/pgpass
+        chmod 0600 /var/lib/pgadmin/storage/guest_sibr.dev/pgpass
+        cat <<EOF >/var/lib/pgadmin/servers.json
+        {
+          "Servers": {
+            "1": {
+              "Name": "SIBR",
+              "Group": "Servers",
+              "Host": "datablase-db-1",
+              "Port": 5432,
+              "Username": "guest",
+              "PassFile": "/pgpass",
+              "SSLMode": "prefer",
+              "MaintenanceDB": "blaseball-2.14.8"
+            }
+          }
+        }
+        EOF
+        eval "$(sed '/run_pgadmin.py/a /venv/bin/python3 /pgadmin4/setup.py update-user --nonadmin guest@sibr.dev' /entrypoint.sh)"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: guest@sibr.dev
+      PGADMIN_DEFAULT_PASSWORD: salmon
+      PGADMIN_DISABLE_POSTFIX: true
+      PGADMIN_SERVER_JSON_FILE: /var/lib/pgadmin/servers.json
+    tmpfs:
+      # Effectively undo the `VOLUME` entry in the Dockerfile, which creates an anonymous volume.
+      - /var/lib/pgadmin
+    networks:
+      - pgadmin
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.routers.pgadmin.entrypoints: https
+      traefik.http.routers.pgadmin.rule: >
+        Host(`pgadmin.sibr.dev`) &&
+        !PathPrefix(`/browser/change_password`) &&
+        !PathPrefix(`/browser/reset_password`) &&
+        !PathPrefix(`/mfa`)
+      traefik.http.services.pgadmin.loadbalancer.server.port: 80
+    mem_limit: 1g
+
+networks:
+  pgadmin:
+    name: pgadmin
+  proxy:
+    external: true
+    name: proxy

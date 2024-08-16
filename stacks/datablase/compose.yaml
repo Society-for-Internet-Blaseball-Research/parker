@@ -9,6 +9,9 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/superuser_password
     ports:
       - 1019:5432
+    networks:
+      - default
+      - pgadmin
     volumes:
       - /srv/docker/datablase/db:/var/lib/postgresql/data
     secrets:
@@ -46,6 +49,9 @@ services:
     mem_limit: 512m
 
 networks:
+  pgadmin:
+    name: pgadmin
+    external: true
   proxy:
     name: proxy
     external: true
