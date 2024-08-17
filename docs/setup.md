@@ -27,7 +27,7 @@ If you're setting up a new host due to a hardware failure or to validate the pla
 4. Restore snapshots:
    ```
    export RESTIC_REPOSITORY=sftp://$(cat etc/storage-box.txt):23/restic
-   for dir in /srv/docker/aeguir /srv/docker/management/traefik_data /srv/docker/olareg/data /srv/docker/teeny /srv/www; do
+   for dir in /srv/docker/aeguir /srv/docker/glolf /srv/docker/management/traefik_data /srv/docker/olareg/data /srv/docker/teeny /srv/www; do
       restic --insecure-no-password \
          --option=sftp.args='-i /root/.ssh/restic_ed25519 -o ServerAliveInterval=60 -o ServerAliveCountMax=240' \
          restore latest --path "$dir" --target /

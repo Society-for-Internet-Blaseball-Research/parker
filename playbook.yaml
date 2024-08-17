@@ -336,6 +336,7 @@
         state: directory
       loop:
         - /srv/docker/aeguir/data
+        - /srv/docker/glolf/db
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
         - /srv/docker/datablase/auth
@@ -435,6 +436,7 @@
         - stacks/aeguir
         - stacks/before
         - stacks/compendium
+        - stacks/glolf
         - stacks/json2csv
         - stacks/staticwww
         - stacks/teeny
@@ -493,6 +495,7 @@
       vars:
         backup_dirs:
           - /srv/docker/aeguir
+          - /srv/docker/glolf
           - /srv/docker/management/traefik_data
           - /srv/docker/netdata/config
           - /srv/docker/netdata/identity

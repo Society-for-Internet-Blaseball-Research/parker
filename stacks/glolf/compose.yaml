@@ -1,0 +1,12 @@
+name: glolf
+
+services:
+  bot:
+    restart: unless-stopped
+    image: hillexed/glolf
+    # image CMD overwrites /root/glolf/.env so let's not do that
+    command: python3 bot.py
+    volumes:
+      - /srv/docker/glolf/env:/root/glolf/.env:ro
+      - /srv/docker/glolf/db:/root/glolf/db_data
+    mem_limit: 256m
