@@ -334,6 +334,7 @@
         state: directory
       loop:
         - /srv/docker/aeguir/data
+        - /srv/docker/blaseball-reference/files
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
         - /srv/docker/datablase/auth
@@ -397,6 +398,7 @@
         - stacks/upnuts
 
         - stacks/before
+        - stacks/blaseball-reference
         - stacks/compendium
         - stacks/json2csv
         - stacks/teeny
@@ -455,6 +457,7 @@
       vars:
         backup_dirs:
           - /srv/docker/aeguir
+          - /srv/docker/blaseball-reference
           - /srv/docker/management/traefik_data
           - /srv/docker/netdata/config
           - /srv/docker/netdata/identity
