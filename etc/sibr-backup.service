@@ -14,5 +14,6 @@ Environment=RESTIC_REPOSITORY=sftp://{{ lookup('file', 'storage-box.txt') }}:23/
 {% for dir in backup_dirs %}
 ExecStart=/usr/local/bin/restic {{ restic_args }} backup --one-file-system --skip-if-unchanged {{ dir|quote }}
 {% endfor %}
+ExecStart=/usr/local/bin/restic {{ restic_args }} backup --skip-if-unchanged --stdin-filename /glolfwiki-db --stdin-from-command -- docker exec glolfwiki-db-1 mysqldump --add-drop-table --skip-dump-date -h localhost -u wikiuser --password=wikipassword my_wiki
 ExecStart=/usr/local/bin/restic {{ restic_args }} forget {{ forget_args }}
 Type=oneshot
