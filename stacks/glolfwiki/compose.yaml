@@ -1,0 +1,37 @@
+name: glolfwiki
+
+services:
+  db:
+    restart: unless-stopped
+    image: mariadb:10.5.6
+    volumes:
+      - /srv/docker/glolfwiki/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: my_wiki
+      MYSQL_USER: wikiuser
+      MYSQL_PASSWORD: wikipassword
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+
+  app:
+    restart: unless-stopped
+    image: mediawiki:1.35.2
+    depends_on:
+      - db
+    volumes:
+      - /srv/docker/glolfwiki/www/extensions:/var/www/html/extensions
+      - /srv/docker/glolfwiki/www/favicon.ico:/var/www/html/favicon.ico
+      - /srv/docker/glolfwiki/www/htaccess:/var/www/html/.htaccess
+      - /srv/docker/glolfwiki/www/images:/var/www/html/images
+      - /srv/docker/glolfwiki/www/LocalSettings.php:/var/www/html/LocalSettings.php
+    networks:
+      - default
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.routers.glolfwiki.entrypoints: https
+      traefik.http.routers.glolfwiki.rule: Host(`glolfwiki.sibr.dev`)
+
+networks:
+  proxy:
+    external: true
+    name: proxy
