@@ -106,6 +106,8 @@
       command: docker kill --signal=SIGHUP datablase-db-1
     - name: reload ssh
       service: name=ssh state=reloaded
+    - name: reload staticwww
+      command: docker exec staticwww-nginx-1 nginx -s reload
 
   tasks:
     # Early system configuration.
@@ -345,6 +347,7 @@
         - /srv/docker/netdata/identity
         - /srv/docker/netdata/metrics
         - /srv/docker/olareg/data
+        - /srv/docker/staticwww
         - /srv/docker/teeny/rocks
         - /srv/docker/upnuts/db
     - name: Create Compose stack directories (setgid staff)
@@ -354,6 +357,7 @@
         group: staff
         mode: '2775'
       loop:
+        - /srv/www/files.blaseball-reference.com
         - /srv/www/stacks.sibr.dev
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
       file:
@@ -379,6 +383,12 @@
         force: false
         group: staff
         mode: '0640'
+    - name: staticwww nginx configuration
+      template:
+        src: etc/staticwww/nginx.conf
+        dest: /srv/docker/staticwww/nginx.conf
+      notify:
+        - reload staticwww
     - name: Manage Compose stacks
       community.docker.docker_compose_v2:
         project_src: "{{ item }}"
@@ -387,7 +397,6 @@
         - stacks/management
         - stacks/olareg
         - stacks/netdata
-        - stacks/aeguir
         - stacks/pgadmin
 
         - stacks/chronicler
@@ -396,9 +405,11 @@
         - stacks/replay
         - stacks/upnuts
 
+        - stacks/aeguir
         - stacks/before
         - stacks/compendium
         - stacks/json2csv
+        - stacks/staticwww
         - stacks/teeny
         - stacks/telnet
 

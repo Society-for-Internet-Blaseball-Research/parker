@@ -1,0 +1,23 @@
+name: staticwww
+
+services:
+  nginx:
+    restart: unless-stopped
+    image: nginx:1.26.2
+    volumes:
+      - /srv/docker/staticwww:/etc/nginx:ro
+      - /srv/www:/srv/www:ro
+    networks:
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.routers.staticwww.entrypoints: https
+      traefik.http.routers.staticwww.rule: >
+        Host(`files.blaseball-reference.com`) ||
+        Host(`stacks.sibr.dev`)
+    mem_limit: 512m
+
+networks:
+  proxy:
+    external: true
+    name: proxy
