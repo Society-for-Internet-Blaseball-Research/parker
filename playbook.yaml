@@ -357,8 +357,13 @@
         group: staff
         mode: '2775'
       loop:
+        - /srv/www/etr.sibr.dev
         - /srv/www/files.blaseball-reference.com
+        - /srv/www/jq.sibr.dev
+        - /srv/www/snacks.sibr.dev
         - /srv/www/stacks.sibr.dev
+        - /srv/www/stadium-viewer.sibr.dev
+        - /srv/www/surveys.sibr.dev
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
       file:
         path: /srv/docker/management/traefik_data/mgmt.htpasswd
@@ -387,6 +392,28 @@
       template:
         src: etc/staticwww/nginx.conf
         dest: /srv/docker/staticwww/nginx.conf
+        validate: 'docker run --rm -v %s:/etc/nginx/nginx.conf:ro --entrypoint nginx nginx:1.26.2 -t'
+      vars:
+        extra_config:
+          files.blaseball-reference.com: |
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET';
+          research.blaseball-reference.com: |
+            location = / {
+              return 302 https://sibr.dev/research.html;
+            }
+            location / {
+              return 302 https://sibr.dev/papers/files$request_uri;
+            }
+          stacks.sibr.dev: autoindex on;
+        redirects:
+          blog.sibr.dev: https://sibr.dev/blog/
+          discord.sibr.dev: https://discord.gg/UhAajY2NCW
+          hloroscopes.sibr.dev: http://yoori.space/hloroscopes
+          levels.sibr.dev: https://ubuntor.github.io/blaseball/imposition/
+          oracle.sibr.dev: https://files.sibr.dev/oracle/oracle.jpg
+          sclorigami.sibr.dev: https://docs.google.com/spreadsheets/d/1ITCtaZAXimgO7bjPaBeb3w_n9R20cEH07kIsSFJEj90/edit?usp=sharing
+          simsim.sibr.dev: http://sim16.sakimori.space
       notify:
         - reload staticwww
     - name: Manage Compose stacks

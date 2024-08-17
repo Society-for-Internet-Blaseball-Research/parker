@@ -13,8 +13,21 @@ services:
       traefik.enable: true
       traefik.http.routers.staticwww.entrypoints: https
       traefik.http.routers.staticwww.rule: >
+        Host(`blog.sibr.dev`) ||
+        Host(`discord.sibr.dev`) ||
+        Host(`etr.sibr.dev`) ||
         Host(`files.blaseball-reference.com`) ||
-        Host(`stacks.sibr.dev`)
+        Host(`hloroscopes.sibr.dev`) ||
+        Host(`jq.sibr.dev`) ||
+        Host(`levels.sibr.dev`) ||
+        Host(`oracle.sibr.dev`) ||
+        Host(`research.blaseball-reference.com`) ||
+        Host(`sclorigami.sibr.dev`) ||
+        Host(`simsim.sibr.dev`) ||
+        Host(`snacks.sibr.dev`) ||
+        Host(`stacks.sibr.dev`) ||
+        Host(`stadium-viewer.sibr.dev`) ||
+        Host(`surveys.sibr.dev`)
     mem_limit: 512m
 
 networks:
