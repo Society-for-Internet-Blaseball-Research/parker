@@ -360,6 +360,7 @@
         group: staff
         mode: '2775'
       loop:
+        - /srv/docker/postoffice
         - /srv/www/etr.sibr.dev
         - /srv/www/files.blaseball-reference.com
         - /srv/www/jq.sibr.dev
@@ -503,6 +504,7 @@
           - /srv/docker/netdata/config
           - /srv/docker/netdata/identity
           - /srv/docker/olareg/data
+          - /srv/docker/postoffice
           - /srv/docker/teeny
           - /srv/www
         restic_args:
