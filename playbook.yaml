@@ -440,6 +440,7 @@
         - stacks/before
         - stacks/compendium
         - stacks/glolf
+        - stacks/glolfwiki
         - stacks/json2csv
         - stacks/staticwww
         - stacks/teeny
