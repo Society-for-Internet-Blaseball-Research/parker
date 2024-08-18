@@ -23,6 +23,7 @@ services:
         Host(`levels.sibr.dev`) ||
         Host(`oracle.sibr.dev`) ||
         Host(`research.blaseball-reference.com`) ||
+        Host(`research.sibr.dev`) ||
         Host(`sclorigami.sibr.dev`) ||
         Host(`simsim.sibr.dev`) ||
         Host(`snacks.sibr.dev`) ||
