@@ -361,6 +361,7 @@
         mode: '2775'
       loop:
         - /srv/docker/postoffice
+        - /srv/www/bricks.sibr.dev
         - /srv/www/etr.sibr.dev
         - /srv/www/files.blaseball-reference.com
         - /srv/www/jq.sibr.dev
@@ -399,6 +400,11 @@
         validate: 'docker run --rm -v %s:/etc/nginx/nginx.conf:ro --entrypoint nginx nginx:1.26.2 -t'
       vars:
         extra_config:
+          bricks.sibr.dev: |
+            try_files $uri $uri.html =404;
+            location = / {
+              return 303 https://bricks.sibr.dev/batting/gamma10/0;
+            }
           files.blaseball-reference.com: |
             add_header 'Access-Control-Allow-Origin' '*';
             add_header 'Access-Control-Allow-Methods' 'GET';
