@@ -27,8 +27,7 @@ services:
       traefik.http.middlewares.upnuts-prefix.stripprefix.prefixes: /upnuts
       traefik.http.routers.upnuts.entrypoints: https
       traefik.http.routers.upnuts.middlewares: upnuts-prefix@docker
-      traefik.http.routers.upnuts.rule: >
-        (Host(`api.sibr-03-hetzner.sibr.dev`) || Host(`api.sibr.dev`)) && PathPrefix(`/upnuts/`)
+      traefik.http.routers.upnuts.rule: Host(`api.sibr.dev`) && PathPrefix(`/upnuts/`)
       traefik.http.services.upnuts.loadbalancer.server.port: 9796
     mem_limit: 1g
 
