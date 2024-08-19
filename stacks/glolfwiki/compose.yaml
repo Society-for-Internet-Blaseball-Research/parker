@@ -11,6 +11,7 @@ services:
       MYSQL_USER: wikiuser
       MYSQL_PASSWORD: wikipassword
       MYSQL_RANDOM_ROOT_PASSWORD: yes
+    mem_limit: 1g
 
   app:
     restart: unless-stopped
@@ -30,6 +31,7 @@ services:
       traefik.enable: true
       traefik.http.routers.glolfwiki.entrypoints: https
       traefik.http.routers.glolfwiki.rule: Host(`glolfwiki.sibr.dev`)
+    mem_limit: 512m
 
 networks:
   proxy:
