@@ -17,6 +17,9 @@
       - name: iliana
         admin: true
         faculty: true
+      - name: risky
+        admin: true
+        faculty: true
       # Keep this user defined until we have non-admin users to exercise various
       # non-admin branches.
       - name: mail
