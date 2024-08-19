@@ -1,4 +1,4 @@
-Infrastructure-as-code for SIBR's server. Status: Early work in progress, not yet production
+Infrastructure-as-code for SIBR's server.
 
 Operations documentation:
 
@@ -15,4 +15,4 @@ At the end of _Blaseball_, SIBR had two dedicated servers its services were spli
 
 The server runs Ubuntu 24.04 LTS. The system state is managed as best as we can with Ansible.
 
-Services are generally contained within Docker Compose stacks. A handful of these stacks will be found in this repository. Some are run by community members who don't have root access to the server; we expect that management for these stacks will be delegated using Portainer.
+Services are generally contained within Docker Compose stacks, found in this repository.
