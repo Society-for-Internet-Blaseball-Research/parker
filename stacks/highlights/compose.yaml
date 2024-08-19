@@ -1,0 +1,39 @@
+name: highlights
+
+services:
+  db:
+    restart: unless-stopped
+    image: hora9/blaseball-highlights:db
+    volumes:
+      - /srv/docker/highlights/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: highlights
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: highlights
+    mem_limit: 1g
+
+  backend:
+    restart: unless-stopped
+    image: hora9/blaseball-highlights:backend
+    environment:
+      WORKERS_PER_CORE: 0.5
+      DATABASE_URL: postgresql://highlights:password@db/highlights
+    mem_limit: 512m
+
+  frontend:
+    restart: unless-stopped
+    image: hora9/blaseball-highlights:frontend
+    networks:
+      - default
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.routers.highlights.entrypoints: https
+      traefik.http.routers.highlights.rule: Host(`highlights.sibr.dev`)
+      traefik.http.services.highlights.loadbalancer.server.port: 80
+    mem_limit: 512m
+
+networks:
+  proxy:
+    external: true
+    name: proxy

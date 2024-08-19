@@ -353,6 +353,7 @@
         - /srv/docker/glolf/db
         - /srv/docker/glolfwiki/db
         - /srv/docker/glolfwiki/www
+        - /srv/docker/highlights/db
         - /srv/docker/management/traefik_data
         - /srv/docker/netdata/config/go.d
         - /srv/docker/netdata/identity
@@ -482,6 +483,7 @@
         - stacks/compendium
         - stacks/glolf
         - stacks/glolfwiki
+        - stacks/highlights
         - stacks/json2csv
         - stacks/staticwww
         - stacks/teeny
