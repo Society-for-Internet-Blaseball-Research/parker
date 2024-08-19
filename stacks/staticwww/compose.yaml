@@ -17,7 +17,9 @@ services:
         Host(`bricks.sibr.dev`) ||
         Host(`discord.sibr.dev`) ||
         Host(`etr.sibr.dev`) ||
+        Host(`faculty.sibr.dev`) ||
         Host(`files.blaseball-reference.com`) ||
+        Host(`files.sibr.dev`) ||
         Host(`hloroscopes.sibr.dev`) ||
         Host(`jq.sibr.dev`) ||
         Host(`levels.sibr.dev`) ||

@@ -8,12 +8,19 @@
     etc/restic-vars.yaml
   vars:
     users:
-      dlareau: {admin: true}
-      emily: {admin: true}
-      iliana: {admin: true}
+      - name: dlareau
+        admin: true
+        faculty: true
+      - name: emily
+        admin: true
+        faculty: true
+      - name: iliana
+        admin: true
+        faculty: true
       # Keep this user defined until we have non-admin users to exercise various
       # non-admin branches.
-      mail: {shell: /usr/sbin/nologin}
+      - name: mail
+        shell: /usr/sbin/nologin
     packages:
       # https://packages.ubuntu.com/noble/ubuntu-cloud-minimal, but less
       - apparmor
@@ -313,11 +320,11 @@
     # Users and groups.
     - name: Create users
       user:
-        name: "{{ item }}"
-        groups: "{{ users[item].admin | default | ternary(admin_groups, []) }}"
+        name: "{{ item.name }}"
+        groups: "{{ item.admin | default | ternary(admin_groups, []) }}"
         append: true
-        shell: "{{ users[item].shell | default('/bin/bash') }}"
-      loop: "{{ users.keys() }}"
+        shell: "{{ item.shell | default('/bin/bash') }}"
+      loop: "{{ users }}"
       vars:
         admin_groups:
           - docker
@@ -363,12 +370,30 @@
         - /srv/docker/postoffice
         - /srv/www/bricks.sibr.dev
         - /srv/www/etr.sibr.dev
+        - /srv/www/faculty.sibr.dev
         - /srv/www/files.blaseball-reference.com
+        - /srv/www/files.sibr.dev
         - /srv/www/jq.sibr.dev
         - /srv/www/snacks.sibr.dev
         - /srv/www/stacks.sibr.dev
         - /srv/www/stadium-viewer.sibr.dev
         - /srv/www/surveys.sibr.dev
+    - name: Set up faculty web directories
+      file:
+        path: /srv/www/faculty.sibr.dev/~{{ item.name }}
+        state: directory
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
+        mode: '0755'
+      loop: "{{ users | selectattr('faculty', 'true') }}"
+    - name: Symlink faculty web directories
+      file:
+        src: /srv/www/faculty.sibr.dev/~{{ item.name }}
+        dest: /home/{{ item.name }}/public_html
+        state: link
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
+      loop: "{{ users | selectattr('faculty', 'true') }}"
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
       file:
         path: /srv/docker/management/traefik_data/mgmt.htpasswd
@@ -415,6 +440,8 @@
             location / {
               return 302 https://sibr.dev/papers/files$request_uri;
             }
+          faculty.sibr.dev: autoindex on;
+          files.sibr.dev: autoindex on;
           stacks.sibr.dev: autoindex on;
         redirects:
           blog.sibr.dev: https://sibr.dev/blog/
