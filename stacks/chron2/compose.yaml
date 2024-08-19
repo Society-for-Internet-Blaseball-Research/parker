@@ -1,0 +1,37 @@
+name: chron2
+
+services:
+  db:
+    restart: unless-stopped
+    image: timescale/timescaledb:2.9.1-pg15
+    environment:
+      POSTGRES_PASSWORD: password
+    volumes:
+      - /srv/docker/chron2/db:/var/lib/postgresql/data
+    mem_limit: 16g
+    memswap_limit: 18g
+
+  api:
+    restart: unless-stopped
+    image: localhost:5000/chron2:sha256-8118fca2fc168952390f340a5a3ea712dbd2d44b9319c67e2b7d0fb290acf693
+    command: ["/app/chron-api"]
+    volumes:
+      - /srv/docker/chron2/config.toml:/app/config.toml:ro
+    environment:
+      CHRON_DATABASE_URI: postgres://postgres:password@db:5432/postgres
+    networks:
+      - default
+      - proxy
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.chron2-prefix.stripprefix.prefixes: /chronicler
+      traefik.http.routers.chron2.entrypoints: https
+      traefik.http.routers.chron2.middlewares: chron2-prefix@docker
+      traefik.http.routers.chron2.rule: Host(`api2.sibr.dev`) && PathPrefix(`/chronicler/`)
+      traefik.http.services.chron2.loadbalancer.server.port: 3000
+    mem_limit: 1g
+
+networks:
+  proxy:
+    external: true
+    name: proxy

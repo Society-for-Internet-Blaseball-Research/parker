@@ -343,13 +343,14 @@
         state: directory
       loop:
         - /srv/docker/aeguir/data
-        - /srv/docker/glolf/db
+        - /srv/docker/chron2/db
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
         - /srv/docker/datablase/auth
         - /srv/docker/datablase/db
         - /srv/docker/eventually/db
         - /srv/docker/eventually/sachet_cache
+        - /srv/docker/glolf/db
         - /srv/docker/glolfwiki/db
         - /srv/docker/glolfwiki/www
         - /srv/docker/management/traefik_data
@@ -403,6 +404,11 @@
         state: touch
         access_time: preserve
         modification_time: preserve
+    - name: Create /srv/docker/chron2/config.toml
+      copy:
+        content: |
+          auth_cookie = "lol. lmao"
+        dest: /srv/docker/chron2/config.toml
     - name: Netdata configuration
       template:
         src: etc/netdata/{{ item }}
@@ -465,6 +471,7 @@
         - stacks/pgadmin
 
         - stacks/chronicler
+        - stacks/chron2
         - stacks/datablase
         - stacks/eventually
         - stacks/replay
