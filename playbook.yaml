@@ -10,16 +10,20 @@
     users:
       - name: dlareau
         admin: true
-        faculty: true
+        faculty_site: true
       - name: emily
         admin: true
-        faculty: true
+        faculty_site: true
+      - name: honu
+        faculty_site: true
       - name: iliana
         admin: true
-        faculty: true
+        faculty_site: true
       - name: risky
         admin: true
-        faculty: true
+        faculty_site: true
+      - name: shibboh
+        admin: true
       # Keep this user defined until we have non-admin users to exercise various
       # non-admin branches.
       - name: mail
@@ -390,7 +394,7 @@
         owner: "{{ item.name }}"
         group: "{{ item.name }}"
         mode: '0755'
-      loop: "{{ users | selectattr('faculty', 'true') }}"
+      loop: "{{ users | selectattr('faculty_site', 'true') }}"
     - name: Symlink faculty web directories
       file:
         src: /srv/www/faculty.sibr.dev/~{{ item.name }}
@@ -398,7 +402,7 @@
         state: link
         owner: "{{ item.name }}"
         group: "{{ item.name }}"
-      loop: "{{ users | selectattr('faculty', 'true') }}"
+      loop: "{{ users | selectattr('faculty_site', 'true') }}"
     - name: Ensure /srv/docker/management/traefik_data/mgmt.htpasswd exists
       file:
         path: /srv/docker/management/traefik_data/mgmt.htpasswd
