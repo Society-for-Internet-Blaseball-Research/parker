@@ -8,6 +8,8 @@
     etc/restic-vars.yaml
   vars:
     users:
+      - name: astrid
+        admin: true
       - name: dlareau
         admin: true
         faculty_site: true
