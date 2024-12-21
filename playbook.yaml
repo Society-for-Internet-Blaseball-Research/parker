@@ -352,6 +352,7 @@
         state: directory
       loop:
         - /srv/docker/aeguir/data
+        - /srv/docker/blaseball-reference
         - /srv/docker/chron2/db
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
@@ -489,6 +490,7 @@
 
         - stacks/aeguir
         - stacks/before
+        - stacks/blaseballreference
         - stacks/compendium
         - stacks/glolf
         - stacks/glolfwiki
@@ -551,6 +553,7 @@
       vars:
         backup_dirs:
           - /srv/docker/aeguir
+          - /srv/docker/blaseball-reference
           - /srv/docker/glolf
           - /srv/docker/glolfwiki/www
           - /srv/docker/management/traefik_data

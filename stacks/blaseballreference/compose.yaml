@@ -1,0 +1,31 @@
+name: blaseballreference
+
+services:
+  nextjs:
+    restart: unless-stopped
+    image: ghcr.io/mjhale/blaseball-reference.com:a5d5de04f1ce5d0163bdc7b03b2397d545b64208 
+    networks:
+      - proxy
+    expose:
+      - "3000"
+    labels:
+      traefik.enable: true
+      traefik.http.middlewares.blaseballreference-addwww.redirectregex.regex: ^https://(?:www\.)?(.*)
+      traefik.http.middlewares.blaseballreference-addwww.redirectregex.replacement: https://www.$$1
+      traefik.http.routers.blaseballreference.entrypoints: https
+      traefik.http.routers.blaseballreference.middlewares: blaseballreference-addwww@docker
+      traefik.http.routers.blaseballreference.rule: Host(`blaseball-reference.com`) || Host(`www.blaseball-reference.com`)
+      traefik.http.services.blaseballreference.loadbalancer.server.port: 3000
+    secrets:
+      - fauna_secret
+    entrypoint: [ '/bin/sh', '-c', 'export FAUNA_SECRET=$$(cat /var/run/secrets/fauna_secret) ; node server.js' ]
+    mem_limit: 256m
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+
+secrets:
+  fauna_secret:
+    file: /srv/docker/blaseball-reference/fauna_secret
