@@ -497,6 +497,7 @@
         - stacks/highlights
         - stacks/json2csv
         - stacks/staticwww
+        - stacks/spies
         - stacks/teeny
         - stacks/telnet
 

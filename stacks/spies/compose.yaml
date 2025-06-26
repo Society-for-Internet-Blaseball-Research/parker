@@ -1,0 +1,22 @@
+name: spies
+
+services:
+  spies:
+    restart: unless-stopped
+    image: ghcr.io/society-for-internet-blaseball-research/houstonspies.cyou@sha256:latest
+    read_only: true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.spies.entrypoints=https
+      - traefik.http.routers.spies.rule=Host(`houstonspies.cyou`)
+      - traefik.http.routers.spies.tls=true
+      - traefik.http.routers.spies.tls.certResolver=acme-tls
+      - traefik.http.routers.spies.tls.domains[0].main=houstonspies.cyou
+      - traefik.http.services.spies.loadbalancer.server.port=80
+    mem_limit: 512m
+    networks:
+    - proxy
+networks:
+  proxy:
+    external: true
+    name: proxy
