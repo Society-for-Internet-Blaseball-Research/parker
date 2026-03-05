@@ -1,0 +1,46 @@
+name: wiki-discourse
+
+services:
+  wiki-discourse:
+    restart: unless-stopped
+    image: local_discourse/wiki-discourse:latest
+    command: ["/bin/sh", "-c", "export DISCOURSE_SMTP_PASSWORD=$(cat /run/secrets/smtp_password) && exec /sbin/boot"]
+    environment:
+      DISCOURSE_HOSTNAME: wikitalk.blaseball.wiki
+      DISCOURSE_DEVELOPER_EMAILS: pokeylope@sibr.dev
+      DISCOURSE_NOTIFICATION_EMAIL: blaseballwiki@gmail.com
+      DISCOURSE_SMTP_ADDRESS: smtp.gmail.com
+      DISCOURSE_SMTP_USER_NAME: blaseballwiki@gmail.com
+      DISCOURSE_DB_SOCKET: /var/run/postgresql
+      RAILS_ENV: production
+      LANG: en_US.UTF-8
+      LANGUAGE: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      UNICORN_WORKERS: "3"
+      UNICORN_SIDEKIQS: "1"
+      RUBY_GC_HEAP_INIT_SLOTS: "400000"
+      RUBY_GC_HEAP_GROWTH_MAX_SLOTS: "40000"
+      RUBY_GC_HEAP_OLDOBJECT_LIMIT_FACTOR: "1.5"
+      RUBY_GLOBAL_METHOD_CACHE_SIZE: "131072"
+    volumes:
+      - /srv/docker/wiki-discourse/shared/standalone:/shared
+      - /srv/docker/wiki-discourse/shared/standalone/log/var-log:/var/log
+    networks:
+      - proxy
+    secrets:
+      - smtp_password
+    labels:
+      traefik.enable: true
+      traefik.http.routers.wiki-discourse.entrypoints: https
+      traefik.http.routers.wiki-discourse.rule: Host(`wikitalk.blaseball.wiki`)
+      traefik.http.routers.wiki-discourse.tls.certResolver: acme-tls
+      traefik.http.services.wiki-discourse.loadbalancer.server.port: 80
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+
+secrets:
+  smtp_password:
+    file: /srv/docker/wiki-discourse/smtp_password
