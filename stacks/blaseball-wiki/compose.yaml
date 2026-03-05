@@ -76,7 +76,7 @@ services:
       DB_USER: wikiuser
       DB_NAMES: my_wiki
       DB_DUMP_TARGET: /db
-    entrypoint: ["/bin/sh", "-c", "export DB_PASS=$(cat /run/secrets/db_password) && exec /start.sh"]
+    entrypoint: ["/bin/sh", "-c", "export DB_PASS=$(cat /run/secrets/db_password) && exec /entrypoint"]
     volumes:
       - /srv/docker/blaseball-wiki/db_backups:/db
     secrets:
