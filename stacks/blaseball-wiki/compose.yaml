@@ -58,7 +58,7 @@ services:
       bootstrap.memory_lock: "true"
       discovery.type: single-node
     volumes:
-      - /srv/docker/blaseball-wiki/elasticsearch:/usr/share/elasticsearch/data
+      - /srv/docker/blaseball-wiki/elasticsearch/data:/usr/share/elasticsearch/data
 
   memcached:
     restart: unless-stopped
