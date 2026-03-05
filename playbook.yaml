@@ -353,6 +353,16 @@
       loop:
         - /srv/docker/aeguir/data
         - /srv/docker/blaseball-reference
+        - /srv/docker/blaseball-wiki/auth
+        - /srv/docker/blaseball-wiki/db_backups
+        - /srv/docker/blaseball-wiki/db_data
+        - /srv/docker/blaseball-wiki/elasticsearch
+        - /srv/docker/blaseball-wiki/images
+        # - /srv/docker/blaseball-wiki-dev/auth
+        # - /srv/docker/blaseball-wiki-dev/db_data
+        # - /srv/docker/blaseball-wiki-dev/elasticsearch
+        # - /srv/docker/blaseball-wiki-dev/images
+        # - /srv/docker/wiki-discourse
         - /srv/docker/chron2/db
         - /srv/docker/chronicler/db
         - /srv/docker/chronicler/logs/api
@@ -501,6 +511,10 @@
         - stacks/teeny
         - stacks/telnet
 
+        - stacks/blaseball-wiki
+        # - stacks/blaseball-wiki-dev
+        # - stacks/wiki-discourse
+
     # Extra Datablase setup.
     - name: Deny Datablase superuser logins from the internet
       community.postgresql.postgresql_pg_hba:
@@ -555,6 +569,9 @@
         backup_dirs:
           - /srv/docker/aeguir
           - /srv/docker/blaseball-reference
+          - /srv/docker/blaseball-wiki
+          # - /srv/docker/blaseball-wiki-dev
+          # - /srv/docker/wiki-discourse
           - /srv/docker/glolf
           - /srv/docker/glolfwiki/www
           - /srv/docker/management/traefik_data

@@ -1,0 +1,92 @@
+name: blaseball-wiki
+
+services:
+  mediawiki:
+    restart: unless-stopped
+    image: blaseballsibr/blaseball-wiki:latest
+    environment:
+      MW_REST_DOMAIN: mediawiki
+    volumes:
+      - /srv/docker/blaseball-wiki/grabbers:/var/www/html/grabbers
+      - /srv/docker/blaseball-wiki/composer.local.json:/var/www/html/composer.local.json
+      - /srv/docker/blaseball-wiki/composer.phar:/var/www/html/composer.phar
+      - /srv/docker/blaseball-wiki/robots.txt:/var/www/html/robots.txt
+      - /srv/docker/blaseball-wiki/images:/var/www/html/images
+      - /srv/docker/blaseball-wiki/skins:/var/www/html/skins
+      - /srv/docker/blaseball-wiki/vendor:/var/www/html/vendor
+      - /srv/docker/blaseball-wiki/extensions:/var/www/html/extensions
+      - /srv/docker/blaseball-wiki/php.ini:/usr/local/etc/php/php.ini
+      - /srv/docker/blaseball-wiki/.htaccess:/var/www/html/.htaccess
+      - /srv/docker/blaseball-wiki/LocalSettings.php:/var/www/html/LocalSettings.php
+      - /srv/docker/blaseball-wiki/crontab:/etc/cron.d/mediawiki
+      - /srv/docker/blaseball-wiki/oauth:/etc/oauth
+    networks:
+      - default
+      - proxy
+    # portainer command: update-php
+    #   /bin/bash -c 'php /var/www/html/maintenance/update.php; read -rn1'
+    labels:
+      traefik.enable: true
+      traefik.http.routers.blaseball-wiki.entrypoints: https
+      traefik.http.routers.blaseball-wiki.rule: Host(`blaseball.wiki`) || Host(`www.blaseball.wiki`)
+      traefik.http.routers.blaseball-wiki.tls.certResolver: acme-tls
+      traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker
+      traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.regex: ^https://(?:www\.)?blaseball\.wiki(.*)
+      traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.replacement: https://www.blaseball.wiki$${1}
+      traefik.http.services.blaseball-wiki.loadbalancer.server.port: 80
+
+  database:
+    restart: unless-stopped
+    image: mariadb:10.5.6
+    environment:
+      MYSQL_DATABASE: my_wiki
+      MYSQL_USER: wikiuser
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - /srv/docker/blaseball-wiki/db_data:/var/lib/mysql
+      - /srv/docker/blaseball-wiki/db_backups:/db
+    secrets:
+      - db_password
+
+  elasticsearch:
+    restart: unless-stopped
+    image: elasticsearch:6.8.23
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      LOG4J_FORMAT_MSG_NO_LOOKUPS: "true"
+      bootstrap.memory_lock: "true"
+      discovery.type: single-node
+    volumes:
+      - /srv/docker/blaseball-wiki/elasticsearch:/usr/share/elasticsearch/data
+
+  memcached:
+    restart: unless-stopped
+    image: memcached:1.6.7
+
+  parsoid:
+    restart: unless-stopped
+    image: thenets/parsoid:0.11
+
+  db-backup:
+    restart: unless-stopped
+    image: databack/mysql-backup:latest
+    environment:
+      DB_SERVER: database
+      DB_USER: wikiuser
+      DB_NAMES: my_wiki
+      DB_DUMP_TARGET: /db
+    entrypoint: ["/bin/sh", "-c", "export DB_PASS=$(cat /run/secrets/db_password) && exec /entrypoint dump"]
+    volumes:
+      - /srv/docker/blaseball-wiki/db_backups:/db
+    secrets:
+      - db_password
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+
+secrets:
+  db_password:
+    file: /srv/docker/blaseball-wiki/auth/db_password
