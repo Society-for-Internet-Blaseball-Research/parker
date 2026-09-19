@@ -3,7 +3,7 @@ name: spies
 services:
   spies:
     restart: unless-stopped
-    image: ghcr.io/society-for-internet-blaseball-research/houstonspies.cyou@sha256:latest
+    image: ghcr.io/society-for-internet-blaseball-research/houstonspies.cyou:latest
     read_only: true
     labels:
       - traefik.enable=true
