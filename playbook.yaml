@@ -468,7 +468,10 @@
               return 302 https://sibr.dev/papers/files$request_uri;
             }
           faculty.sibr.dev: autoindex on;
-          files.sibr.dev: autoindex on;
+          files.sibr.dev: |
+            autoindex on;
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET';
           stacks.sibr.dev: autoindex on;
         redirects:
           blog.sibr.dev: https://sibr.dev/blog/
