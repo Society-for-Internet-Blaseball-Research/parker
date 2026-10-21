@@ -31,6 +31,9 @@ services:
       traefik.enable: true
       traefik.http.routers.glolfwiki.entrypoints: https
       traefik.http.routers.glolfwiki.rule: Host(`glolfwiki.sibr.dev`)
+      traefik.http.middlewares.glolfwikiredirect.redirectregex.regex: "^.*"
+      traefik.http.middlewares.glolfwikiredirect.redirectregex.replacement: "https://outage.sibr.dev"
+      traefik.http.routers.glolfwiki.middlewares: glolfwikiredirect
     mem_limit: 512m
 
 networks:

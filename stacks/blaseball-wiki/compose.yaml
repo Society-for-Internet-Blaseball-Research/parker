@@ -30,10 +30,13 @@ services:
       traefik.http.routers.blaseball-wiki.entrypoints: https
       traefik.http.routers.blaseball-wiki.rule: Host(`blaseball.wiki`) || Host(`www.blaseball.wiki`)
       traefik.http.routers.blaseball-wiki.tls.certResolver: acme-tls
-      traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker
+      #traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker
+      traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker,blaseball-wikiredirect
       traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.regex: ^https://(?:www\.)?blaseball\.wiki(.*)
       traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.replacement: https://www.blaseball.wiki$${1}
-      traefik.http.services.blaseball-wiki.loadbalancer.server.port: 80
+      #traefik.http.services.blaseball-wiki.loadbalancer.server.port: 80
+      traefik.http.middlewares.blaseball-wikiredirect.redirectregex.regex: "^.*"
+      traefik.http.middlewares.blaseball-wikiredirect.redirectregex.replacement: "https://outage.sibr.dev"
 
   database:
     restart: unless-stopped
