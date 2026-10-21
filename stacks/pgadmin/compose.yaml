@@ -47,7 +47,10 @@ services:
         !PathPrefix(`/browser/change_password`) &&
         !PathPrefix(`/browser/reset_password`) &&
         !PathPrefix(`/mfa`)
-      traefik.http.services.pgadmin.loadbalancer.server.port: 80
+      #traefik.http.services.pgadmin.loadbalancer.server.port: 80
+      traefik.http.middlewares.pgadminredirect.redirectregex.regex: "^.*"
+      traefik.http.middlewares.pgadminredirect.redirectregex.replacement: "https://outage.sibr.dev"
+      traefik.http.routers.pgadmin.middlewares: pgadminredirect
     mem_limit: 1g
 
 networks:

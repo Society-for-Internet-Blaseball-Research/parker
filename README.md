@@ -4,6 +4,7 @@ Operations documentation:
 
 - [Common operations tasks](./docs/ops.md)
 - [Setting up from scratch](./docs/setup.md)
+- [Quickly making a service inaccessible](./docs/outage.md)
 
 ## Minimum Viable Context
 
