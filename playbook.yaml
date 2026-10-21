@@ -400,6 +400,7 @@
         - /srv/www/stacks.sibr.dev
         - /srv/www/stadium-viewer.sibr.dev
         - /srv/www/surveys.sibr.dev
+        - /srv/www/outage.sibr.dev
     - name: Set up faculty web directories
       file:
         path: /srv/www/faculty.sibr.dev/~{{ item.name }}
@@ -473,6 +474,11 @@
             add_header 'Access-Control-Allow-Origin' '*';
             add_header 'Access-Control-Allow-Methods' 'GET';
           stacks.sibr.dev: autoindex on;
+          outage.sibr.dev: |
+            error_page 503 /index.html;
+            location / {
+              return 503;
+            }
         redirects:
           blog.sibr.dev: https://sibr.dev/blog/
           discord.sibr.dev: https://discord.gg/UhAajY2NCW

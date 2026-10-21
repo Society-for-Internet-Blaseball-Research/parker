@@ -31,7 +31,8 @@ services:
         Host(`snacks.sibr.dev`) ||
         Host(`stacks.sibr.dev`) ||
         Host(`stadium-viewer.sibr.dev`) ||
-        Host(`surveys.sibr.dev`)
+        Host(`surveys.sibr.dev`) ||
+        Host(`outage.sibr.dev`)
     mem_limit: 512m
 
 networks:
