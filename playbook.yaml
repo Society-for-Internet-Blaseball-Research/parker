@@ -476,7 +476,7 @@
           stacks.sibr.dev: autoindex on;
           outage.sibr.dev: |
             error_page 503 /index.html;
-            location / {
+            location = / {
               return 503;
             }
         redirects:
