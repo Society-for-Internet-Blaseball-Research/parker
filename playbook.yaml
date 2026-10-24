@@ -26,6 +26,8 @@
         faculty_site: true
       - name: shibboh
         admin: true
+      - name: pokeylope
+        admin: true
       # Keep this user defined until we have non-admin users to exercise various
       # non-admin branches.
       - name: mail
