@@ -34,6 +34,8 @@ services:
       traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.regex: ^https://(?:www\.)?blaseball\.wiki(.*)
       traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.replacement: https://www.blaseball.wiki$${1}
       traefik.http.services.blaseball-wiki.loadbalancer.server.port: 80
+    secrets:
+      - db.php
 
   database:
     restart: unless-stopped
@@ -90,3 +92,5 @@ networks:
 secrets:
   db_password:
     file: /srv/docker/blaseball-wiki/auth/db_password
+  db.php:
+    file: /srv/docker/blaseball-wiki/auth/db.php
