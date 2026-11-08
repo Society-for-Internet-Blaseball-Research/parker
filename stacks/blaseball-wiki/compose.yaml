@@ -3,7 +3,7 @@ name: blaseball-wiki
 services:
   mediawiki:
     restart: unless-stopped
-    image: blaseballsibr/blaseball-wiki:latest
+    image: ghcr.io/society-for-internet-blaseball-research/blaseball-wiki-docker-image:latest
     environment:
       MW_REST_DOMAIN: mediawiki
     volumes:
@@ -30,13 +30,10 @@ services:
       traefik.http.routers.blaseball-wiki.entrypoints: https
       traefik.http.routers.blaseball-wiki.rule: Host(`blaseball.wiki`) || Host(`www.blaseball.wiki`)
       traefik.http.routers.blaseball-wiki.tls.certResolver: acme-tls
-      #traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker
-      traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker,blaseball-wikiredirect
+      traefik.http.routers.blaseball-wiki.middlewares: blaseball-wiki-addwww@docker
       traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.regex: ^https://(?:www\.)?blaseball\.wiki(.*)
       traefik.http.middlewares.blaseball-wiki-addwww.redirectregex.replacement: https://www.blaseball.wiki$${1}
-      #traefik.http.services.blaseball-wiki.loadbalancer.server.port: 80
-      traefik.http.middlewares.blaseball-wikiredirect.redirectregex.regex: "^.*"
-      traefik.http.middlewares.blaseball-wikiredirect.redirectregex.replacement: "https://outage.sibr.dev"
+      traefik.http.services.blaseball-wiki.loadbalancer.server.port: 80
 
   database:
     restart: unless-stopped
@@ -54,7 +51,7 @@ services:
 
   elasticsearch:
     restart: unless-stopped
-    image: elasticsearch:6.8.23
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     environment:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
       LOG4J_FORMAT_MSG_NO_LOOKUPS: "true"
